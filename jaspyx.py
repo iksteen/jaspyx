@@ -163,7 +163,10 @@ class JaspyxVisitor(ast.NodeVisitor):
       self.visit(value)
     self.output(suffix)
 
-  def block(self, nodes):
+  def block(self, nodes, context=None):
+    if context is not None:
+      self.push(context)
+
     for node in nodes:
       self.do_indent = True
       self.visit(node)
@@ -175,6 +178,9 @@ class JaspyxVisitor(ast.NodeVisitor):
         self.output('\n')
       else:
         self.inhibit_cr = False
+
+    if context is not None:
+      self.pop()
 
   def push(self, block):
     self.stack.append(block)
@@ -245,9 +251,7 @@ class JaspyxVisitor(ast.NodeVisitor):
     args = [arg.id for arg in node.args.args]
 
     func = InlineFunction(self.stack[-1], '', args)
-    self.push(func)
-    self.block([_ast.Return(node.body)])
-    self.pop()
+    self.block([_ast.Return(node.body)], context=func)
 
   # Print
   def visit_Print(self, node):
@@ -361,16 +365,12 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.visit(node.test)
     self.output(') ')
 
-    self.push(Block(self.stack[-1]))
-    self.block(node.body)
-    self.pop()
+    self.block(node.body, context=Block(self.stack[-1]))
 
     if node.orelse:
       self.do_indent = False
       self.output(' else ')
-      self.push(Block(self.stack[-1]))
-      self.block(node.orelse)
-      self.pop()
+      self.block(node.orelse, context = Block(self.stack[-1]))
 
     self.inhibit_semicolon = True
 
