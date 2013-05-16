@@ -426,6 +426,10 @@ class JaspyxVisitor(ast.NodeVisitor):
   visit_AugAssign_Sub = visit_AugAssign__op
   visit_AugAssign_Mult = visit_AugAssign__op
   visit_AugAssign_Div = visit_AugAssign__op
+  visit_AugAssign_Mod = visit_AugAssign__op
+  visit_AugAssign_BitAnd = visit_AugAssign__op
+  visit_AugAssign_BitOr = visit_AugAssign__op
+  visit_AugAssign_BitXor = visit_AugAssign__op
 
   # Binary operations:
   def visit_BinOp(self, node):
