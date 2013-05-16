@@ -220,12 +220,9 @@ class JaspyxVisitor(ast.NodeVisitor):
       self.block([
         _ast.If(
           _ast.Compare(
-            _ast.Call(
+            self.call(
               _ast.Name('type', _ast.Load()),
-              [_ast.Name(arg_name, _ast.Load()),],
-              None,
-              None,
-              None,
+              _ast.Name(arg_name, _ast.Load()),
             ),
             [_ast.Eq(),],
             [_ast.Str('undefined'),],
