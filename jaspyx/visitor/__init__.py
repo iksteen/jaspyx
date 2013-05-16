@@ -1,4 +1,3 @@
-import ast
 import _ast
 from jaspyx.ast_util import ast_call, ast_load
 from jaspyx.builtins import BUILTINS
@@ -6,69 +5,11 @@ from jaspyx.context.block import BlockContext
 from jaspyx.context.function import FunctionContext
 from jaspyx.context.inline_function import InlineFunctionContext
 from jaspyx.context.module import ModuleContext
+from jaspyx.visitor.base_visitor import BaseVisitor
 from jaspyx.visitor.types import Types
 
 
-class DefaultVisitor(ast.NodeVisitor, Types):
-    def __init__(self):
-        self.stack = []
-        self.module = None
-        self.do_indent = False
-        self.inhibit_semicolon = False
-        self.inhibit_cr = False
-
-
-    #
-    # Output helpers
-    #
-
-    def output(self, s):
-        if self.do_indent:
-            self.stack[-1].add(' ' * (self.stack[-1].indent + 2))
-            self.do_indent = False
-        self.stack[-1].add(s)
-
-    def group(self, values, prefix='(', infix=' ', infix_node=None, suffix=')'):
-        self.output(prefix)
-        first = True
-        for value in values:
-            if not first:
-                if infix:
-                    self.output(infix)
-                if infix_node is not None:
-                    self.visit(infix_node)
-                    if infix:
-                        self.output(infix)
-            else:
-                first = False
-            self.visit(value)
-        self.output(suffix)
-
-    def block(self, nodes, context=None):
-        if context is not None:
-            self.push(context)
-
-        for node in nodes:
-            self.do_indent = True
-            self.visit(node)
-            if not self.inhibit_semicolon:
-                self.output(';')
-            else:
-                self.inhibit_semicolon = False
-            if not self.inhibit_cr:
-                self.output('\n')
-            else:
-                self.inhibit_cr = False
-
-        if context is not None:
-            self.pop()
-
-    def push(self, block):
-        self.stack.append(block)
-
-    def pop(self):
-        self.stack[-2].add(self.stack.pop())
-
+class DefaultVisitor(BaseVisitor, Types):
     # Scoped operations:
     def visit_Module(self, node):
         self.module = ModuleContext()
