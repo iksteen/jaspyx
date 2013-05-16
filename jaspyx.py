@@ -262,15 +262,7 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.output(json.dumps(node.s))
 
   def visit_List(self, node):
-    self.output('[')
-    first = True
-    for elt in node.elts:
-      if not first:
-        self.output(',')
-      else:
-        first = False
-      self.visit(elt)
-    self.output(']')
+    self.group(node.elts, prefix='[', infix=', ', suffix=']')
 
   # Variable operations:
   def visit_Global(self, node):
