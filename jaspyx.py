@@ -528,17 +528,7 @@ class JaspyxVisitor(ast.NodeVisitor):
 
   # Boolean operator:
   def visit_BoolOp(self, node):
-    self.output('(')
-    first = True
-    for value in node.values:
-      if not first:
-        self.output(' ')
-        self.visit(node.op)
-        self.output(' ')
-      else:
-        first = False
-      self.visit(value)
-    self.output(')')
+    self.group(node.values, infix_node=node.op)
 
   # Error handler:
   def generic_visit(self, node):
