@@ -180,7 +180,7 @@ class JaspyxVisitor(ast.NodeVisitor):
           _ast.Compare(
             _ast.Call(
               _ast.Name('type', _ast.Load()),
-              [_ast.Str(arg_name),],
+              [_ast.Name(arg_name, _ast.Load()),],
               None,
               None,
               None,
