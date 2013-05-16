@@ -380,6 +380,12 @@ class JaspyxVisitor(ast.NodeVisitor):
   def visit_IsNot(self, node):
     self.output('!==')
 
+  def visit_LShift(self, node):
+    self.output('<<')
+
+  def visit_RShift(self, node):
+    self.output('>>>')
+
   # Comparison:
   def visit_Compare(self, node):
     if len(node.ops) > 1:
