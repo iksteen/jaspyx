@@ -301,17 +301,13 @@ class JaspyxVisitor(ast.NodeVisitor):
     else:
       upper = target.slice.upper
 
-    self.output('Array.prototype.splice.apply(')
-    self.visit(target.value)
-    self.output(', [')
-    self.visit(lower)
-    self.output(', ')
-    self.visit(upper)
-    self.output(' - ')
-    self.visit(lower)
-    self.output('].concat(')
-    self.visit(value)
-    self.output('))')
+    length = _ast.BinOp(upper, _ast.Sub(), lower)
+
+    arg_list = _ast.List([lower, length], _ast.Load())
+    arg_list = self.call(_ast.Attribute(arg_list, 'concat', _ast.Load()), value)
+    apply = self.load('Array.prototype.splice.apply')
+    call = self.call(apply, target.value, arg_list)
+    self.visit(call)
 
   def visit_Assign(self, node):
     # Check for slice assignment
