@@ -12,8 +12,14 @@ BUILTINS = {
   'True': 'true',
   'False': 'false',
   'alert': 'alert',
+  'Object': 'Object',
+  'Number': 'Number',
+  'Boolean': 'Boolean',
+  'String': 'String',
+  'Array': 'Array',
+  'Date': 'Date',
   'Math': 'Math',
-  'self': 'this',
+  'RegExp': 'RegExp',
 }
 
 
