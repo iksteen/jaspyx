@@ -360,7 +360,8 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.pop()
 
     if node.orelse:
-      self.output('else')
+      self.do_indent = False
+      self.output(' else ')
       self.push(Block(self.stack[-1]))
       self.block(node.orelse)
       self.pop()
