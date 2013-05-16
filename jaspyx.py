@@ -182,6 +182,21 @@ class JaspyxVisitor(ast.NodeVisitor):
   def pop(self):
     self.stack[-2].add(self.stack.pop())
 
+
+  #
+  # AST helper functions
+  #
+
+  def load(self, path):
+    pieces = path.split('.')
+    obj = _ast.Name(pieces[0], _ast.Load())
+    for piece in pieces[1:]:
+      obj = _ast.Attribute(obj, piece, _ast.Load())
+    return obj
+
+  def call(self, func, *args):
+    return _ast.Call(func, args, None, None, None)
+
   # Scoped operations:
   def visit_Module(self, node):
     self.module = Module()
