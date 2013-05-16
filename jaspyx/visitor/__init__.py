@@ -1,15 +1,15 @@
 import ast
 import _ast
-import json
 from jaspyx.ast_util import ast_call, ast_load
 from jaspyx.builtins import BUILTINS
 from jaspyx.context.block import BlockContext
 from jaspyx.context.function import FunctionContext
 from jaspyx.context.inline_function import InlineFunctionContext
 from jaspyx.context.module import ModuleContext
+from jaspyx.visitor.types import Types
 
 
-class DefaultVisitor(ast.NodeVisitor):
+class DefaultVisitor(ast.NodeVisitor, Types):
     def __init__(self):
         self.stack = []
         self.module = None
@@ -123,16 +123,6 @@ class DefaultVisitor(ast.NodeVisitor):
     def visit_Print(self, node):
         log = ast_load('window.console.log')
         self.visit(ast_call(log, *node.values))
-
-    # Literal operations
-    def visit_Num(self, node):
-        self.output(json.dumps(node.n))
-
-    def visit_Str(self, node):
-        self.output(json.dumps(node.s))
-
-    def visit_List(self, node):
-        self.group(node.elts, prefix='[', infix=', ', suffix=']')
 
     # Variable operations:
     def visit_Global(self, node):
