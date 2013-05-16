@@ -12,8 +12,8 @@ class BinOp(BaseVisitor):
             attr(node.op, node.left, node.right)
 
     def visit_BinOp_Pow(self, node, left, right):
-        pow = ast_load('Math.pow')
-        self.visit(ast_call(pow, left, right))
+        pow_func = ast_load('Math.pow')
+        self.visit(ast_call(pow_func, left, right))
 
     def visit_BinOp_FloorDiv(self, node, left, right):
         floor = ast_load('Math.floor')
