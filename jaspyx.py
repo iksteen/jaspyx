@@ -3,6 +3,7 @@
 import ast
 import _ast
 import json
+from jaspyx.ast_util import ast_load, ast_call
 
 from jaspyx.builtins import BUILTINS
 from jaspyx.context.block import BlockContext
@@ -71,21 +72,6 @@ class JaspyxVisitor(ast.NodeVisitor):
   def pop(self):
     self.stack[-2].add(self.stack.pop())
 
-
-  #
-  # AST helper functions
-  #
-
-  def load(self, path):
-    pieces = path.split('.')
-    obj = _ast.Name(pieces[0], _ast.Load())
-    for piece in pieces[1:]:
-      obj = _ast.Attribute(obj, piece, _ast.Load())
-    return obj
-
-  def call(self, func, *args):
-    return _ast.Call(func, args, None, None, None)
-
   # Scoped operations:
   def visit_Module(self, node):
     self.module = ModuleContext()
@@ -109,7 +95,7 @@ class JaspyxVisitor(ast.NodeVisitor):
       self.block([
         _ast.If(
           _ast.Compare(
-            self.call(
+            ast_call(
               _ast.Name('type', _ast.Load()),
               _ast.Name(arg_name, _ast.Load()),
             ),
@@ -138,8 +124,8 @@ class JaspyxVisitor(ast.NodeVisitor):
 
   # Print
   def visit_Print(self, node):
-    log = self.load('window.console.log')
-    self.visit(self.call(log, *node.values))
+    log = ast_load('window.console.log')
+    self.visit(ast_call(log, *node.values))
 
   # Literal operations
   def visit_Num(self, node):
@@ -183,9 +169,9 @@ class JaspyxVisitor(ast.NodeVisitor):
     length = _ast.BinOp(upper, _ast.Sub(), lower)
 
     arg_list = _ast.List([lower, length], _ast.Load())
-    arg_list = self.call(_ast.Attribute(arg_list, 'concat', _ast.Load()), value)
-    apply = self.load('Array.prototype.splice.apply')
-    call = self.call(apply, target.value, arg_list)
+    arg_list = ast_call(_ast.Attribute(arg_list, 'concat', _ast.Load()), value)
+    apply = ast_load('Array.prototype.splice.apply')
+    call = ast_call(apply, target.value, arg_list)
     self.visit(call)
 
   def visit_Assign(self, node):
@@ -362,12 +348,12 @@ class JaspyxVisitor(ast.NodeVisitor):
       attr(node.op, node.left, node.right)
 
   def visit_BinOp_Pow(self, node, left, right):
-    pow = self.load('Math.pow')
-    self.visit(self.call(pow, left, right))
+    pow = ast_load('Math.pow')
+    self.visit(ast_call(pow, left, right))
 
   def visit_BinOp_FloorDiv(self, node, left, right):
-    floor = self.load('Math.floor')
-    self.visit(self.call(floor, _ast.BinOp(left, _ast.Div(), right)))
+    floor = ast_load('Math.floor')
+    self.visit(ast_call(floor, _ast.BinOp(left, _ast.Div(), right)))
 
   # Boolean operator:
   def visit_BoolOp(self, node):
