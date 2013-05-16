@@ -362,15 +362,7 @@ class JaspyxVisitor(ast.NodeVisitor):
         return builtin(*node.args)
 
     self.visit(node.func)
-    self.output('(')
-    first = True
-    for arg in node.args:
-      if not first:
-        self.output(', ')
-      else:
-        first = False
-      self.visit(arg)
-    self.output(')')
+    self.group(node.args, infix=', ')
 
   def visit_If(self, node):
     self.output('if(')
