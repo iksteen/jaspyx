@@ -1,4 +1,5 @@
 import ast
+from jaspyx.context.module import ModuleContext
 
 
 class BaseVisitor(ast.NodeVisitor):
@@ -92,6 +93,23 @@ class BaseVisitor(ast.NodeVisitor):
 
         if context is not None:
             self.pop()
+
+    def visit_Module(self, node):
+        """
+        Handler for top-level AST nodes. Sets this visitor's module
+        attribute to a newly generated ModuleContext.
+
+        :param node: The current AST node being visited.
+        """
+        self.module = ModuleContext()
+        self.push(self.module)
+        self.block(node.body)
+
+    def visit_Expr(self, node):
+        self.visit(node.value)
+
+    def visit_Pass(self, node):
+        self.inhibit_semicolon = self.inhibit_cr = True
 
     def generic_visit(self, node):
         """

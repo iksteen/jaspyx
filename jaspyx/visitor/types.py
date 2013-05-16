@@ -1,7 +1,8 @@
 import json
+from jaspyx.visitor import BaseVisitor
 
 
-class Types(object):
+class Types(BaseVisitor):
     def visit_Num(self, node):
         self.output(json.dumps(node.n))
 
