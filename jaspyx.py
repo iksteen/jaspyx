@@ -367,65 +367,33 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.inhibit_semicolon = True
 
   # Operators:
-  def visit_Add(self, node):
-    self.output('+')
+  operator_map = {
+    'Add': '+',
+    'Sub': '-',
+    'Mult': '*',
+    'Div': '/',
+    'Mod': '%',
+    'BitAnd': '&',
+    'BitOr': '|',
+    'BitXor': '^',
+    'Eq': '==',
+    'NotEq': '!=',
+    'Lt': '<',
+    'LtE': '<=',
+    'Gt': '>',
+    'GtE': '>=',
+    'And': '&&',
+    'Or': '||',
+    'Is': '===',
+    'IsNot': '!==',
+    'LShift': '<<',
+    'RShift': '>>>',
+  }
+  def visit__op(self, node):
+    self.output(self.operator_map[node.__class__.__name__])
 
-  def visit_Sub(self, node):
-    self.output('-')
-
-  def visit_Mult(self, node):
-    self.output('*')
-
-  def visit_Div(self, node):
-    self.output('/')
-
-  def visit_Mod(self, node):
-    self.output('%')
-
-  def visit_BitAnd(self, node):
-    self.output('&')
-
-  def visit_BitOr(self, node):
-    self.output('|')
-
-  def visit_BitXor(self, node):
-    self.output('^')
-
-  def visit_Eq(self, node):
-    self.output('==')
-  
-  def visit_NotEq(self, node):
-    self.output('!=')
-  
-  def visit_Lt(self, node):
-    self.output('<')
-
-  def visit_LtE(self, node):
-    self.output('<=')
-  
-  def visit_Gt(self, node):
-    self.output('>')
-
-  def visit_GtE(self, node):
-    self.output('>=')
-
-  def visit_And(self, node):
-    self.output('&&')
-
-  def visit_Or(self, node):
-    self.output('||')
-
-  def visit_Is(self, node):
-    self.output('===')
-
-  def visit_IsNot(self, node):
-    self.output('!==')
-
-  def visit_LShift(self, node):
-    self.output('<<')
-
-  def visit_RShift(self, node):
-    self.output('>>>')
+  for op in operator_map.keys():
+    exec('visit_%s = visit__op' % op)
 
   def visit_Subscript(self, node):
     self.visit(node.value)
