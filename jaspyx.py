@@ -51,14 +51,6 @@ class Scope(object):
     return name in self.globals
 
 
-class Literal(object):
-  def __init__(self, content):
-    self.content = content
-
-  def __str__(self):
-    return self.content
-
-
 class Block(object):
   def __init__(self, parent):
     if parent:
@@ -97,7 +89,7 @@ class InlineFunction(Block):
 
     if declare_vars:
       indent = ' ' * (self.indent + 2)
-      stmt = Literal('%svar %s;\n' % (indent, ', '.join(declare_vars)))
+      stmt = '%svar %s;\n' % (indent, ', '.join(declare_vars))
       self.body.insert(0, stmt)
 
     return 'function%s(%s) %s' % (
@@ -143,9 +135,9 @@ class JaspyxVisitor(ast.NodeVisitor):
 
   def output(self, s):
     if self.do_indent:
-      self.stack[-1].add(Literal(' ' * (self.stack[-1].indent + 2)))
+      self.stack[-1].add(' ' * (self.stack[-1].indent + 2))
       self.do_indent = False
-    self.stack[-1].add(Literal(s))
+    self.stack[-1].add(s)
 
   def group(self, values, prefix='(', infix=' ', infix_node=None, suffix=')'):
     self.output(prefix)
