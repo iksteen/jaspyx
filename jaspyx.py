@@ -519,11 +519,8 @@ class JaspyxVisitor(ast.NodeVisitor):
       self.output(')')
 
   def visit_BinOp_Pow(self, node, left, right):
-    self.output('Math.pow(')
-    self.visit(left)
-    self.output(', ')
-    self.visit(right)
-    self.output(')')
+    pow = self.load('Math.pow')
+    self.visit(self.call(pow, left, right))
 
   def visit_BinOp_FloorDiv(self, node, left, right):
     self.output('Math.floor(')
