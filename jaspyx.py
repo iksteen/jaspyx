@@ -99,14 +99,14 @@ class InlineFunctionContext(Context):
     )
 
 
-class Function(InlineFunctionContext):
+class FunctionContext(InlineFunctionContext):
   def __init__(self, parent, name, arg_names=[]):
-    super(Function, self).__init__(parent, name, arg_names)
+    super(FunctionContext, self).__init__(parent, name, arg_names)
 
   def __str__(self):
     return '%s%s' % (
       ' ' * self.indent,
-      super(Function, self).__str__(),
+      super(FunctionContext, self).__str__(),
     )
 
 
@@ -210,7 +210,7 @@ class JaspyxVisitor(ast.NodeVisitor):
     if node.args.kwarg is not None:
       raise Exception('**kwargs not supported')
 
-    func = Function(self.stack[-1], node.name, args)
+    func = FunctionContext(self.stack[-1], node.name, args)
     self.push(func)
 
     def_args = node.args.defaults
