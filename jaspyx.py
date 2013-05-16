@@ -71,9 +71,9 @@ class Context(object):
     )
 
 
-class InlineFunction(Context):
+class InlineFunctionContext(Context):
   def __init__(self, parent, name, arg_names=[]):
-    super(InlineFunction, self).__init__(parent)
+    super(InlineFunctionContext, self).__init__(parent)
     self.scope = Scope(self.scope)
     self.name = name
     self.arg_names = arg_names
@@ -95,11 +95,11 @@ class InlineFunction(Context):
     return 'function%s(%s) %s' % (
       self.name and ' %s' % self.name or '',
       ', '.join(self.arg_names),
-      super(InlineFunction, self).__str__()
+      super(InlineFunctionContext, self).__str__()
     )
 
 
-class Function(InlineFunction):
+class Function(InlineFunctionContext):
   def __init__(self, parent, name, arg_names=[]):
     super(Function, self).__init__(parent, name, arg_names)
 
@@ -110,7 +110,7 @@ class Function(InlineFunction):
     )
 
 
-class Module(InlineFunction):
+class Module(InlineFunctionContext):
   def __init__(self):
     super(Module, self).__init__(None, '')
     for builtin in BUILTINS.values():
@@ -242,7 +242,7 @@ class JaspyxVisitor(ast.NodeVisitor):
   def visit_Lambda(self, node):
     args = [arg.id for arg in node.args.args]
 
-    func = InlineFunction(self.stack[-1], '', args)
+    func = InlineFunctionContext(self.stack[-1], '', args)
     self.block([_ast.Return(node.body)], context=func)
 
   # Print
