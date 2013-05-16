@@ -1,4 +1,6 @@
 class Scope(object):
+    tmp_index = 0
+
     def __init__(self, parent=None):
         self.parent = parent
         self.declarations = set()
@@ -24,3 +26,8 @@ class Scope(object):
 
     def is_global(self, name):
         return name in self.globals
+
+    @classmethod
+    def alloc_temp(cls):
+        cls.tmp_index += 1
+        return '__jpx_tmp_%i' % cls.tmp_index
