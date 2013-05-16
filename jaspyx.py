@@ -254,15 +254,8 @@ class JaspyxVisitor(ast.NodeVisitor):
 
   # Print
   def visit_Print(self, node):
-    self.output('window.console.log(')
-    first = True
-    for value in node.values:
-      if not first:
-        self.output(', ')
-      else:
-        first = False
-      self.visit(value)
-    self.output(')')
+    log = self.load('window.console.log')
+    self.visit(self.call(log, *node.values))
 
   # Literal operations
   def visit_Num(self, node):
