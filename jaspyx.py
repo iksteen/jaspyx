@@ -514,9 +514,7 @@ class JaspyxVisitor(ast.NodeVisitor):
     if attr is None:
       self.group([node.left, node.op, node.right])
     else:
-      self.output('(')
       attr(node.op, node.left, node.right)
-      self.output(')')
 
   def visit_BinOp_Pow(self, node, left, right):
     pow = self.load('Math.pow')
