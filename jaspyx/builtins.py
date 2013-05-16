@@ -1,5 +1,7 @@
 BUILTINS = {
     'undefined': 'undefined',
+    'this': 'this',
+    'arguments': 'arguments',
     'None': 'null',
     'window': 'window',
     'True': 'true',
