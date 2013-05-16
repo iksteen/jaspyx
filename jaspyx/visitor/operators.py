@@ -5,7 +5,9 @@ class Operators(BaseVisitor):
     # Operators:
     operator_map = {
         'Add': '+',
+        'UAdd': '+',
         'Sub': '-',
+        'USub': '-',
         'Mult': '*',
         'Div': '/',
         'Mod': '%',

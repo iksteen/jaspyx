@@ -21,6 +21,7 @@ from jaspyx.visitor.types import Types
 from jaspyx.visitor.assign import Assign
 from jaspyx.visitor.augassign import AugAssign
 from jaspyx.visitor.subscript import Subscript
+from jaspyx.visitor.unaryop import UnaryOp
 from jaspyx.visitor.variable import Variable
 from jaspyx.visitor.while_ import While
 
@@ -33,6 +34,7 @@ class DefaultVisitor(Types,
                      Lambda,
                      Operators,
                      BoolOp,
+                     UnaryOp,
                      BinOp,
                      Compare,
                      Assign,
