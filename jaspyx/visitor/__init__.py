@@ -10,6 +10,7 @@ from jaspyx.visitor.call import Call
 from jaspyx.visitor.attribute import Attribute
 from jaspyx.visitor.compare import Compare
 from jaspyx.visitor.if_else import IfElse
+from jaspyx.visitor.ifexp import IfExp
 from jaspyx.visitor.lambda_ import Lambda
 from jaspyx.visitor.operators import Operators
 from jaspyx.visitor.boolop import BoolOp
@@ -47,6 +48,7 @@ class DefaultVisitor(Types,
                      Break,
                      Continue,
                      Call,
+                     IfExp,
                      PrintToConsole,
                      FuncJS,
                      FuncType,
