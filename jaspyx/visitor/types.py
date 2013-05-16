@@ -11,3 +11,5 @@ class Types(BaseVisitor):
 
     def visit_List(self, node):
         self.group(node.elts, prefix='[', infix=', ', suffix=']')
+
+    visit_Tuple = visit_List
