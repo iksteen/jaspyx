@@ -1,3 +1,4 @@
+import _ast
 from jaspyx.context.block import BlockContext
 from jaspyx.visitor import BaseVisitor
 
@@ -7,6 +8,9 @@ class Dict(BaseVisitor):
         self.push(context=BlockContext(self.stack[-1]))
         first = True
         for key, value in zip(node.keys, node.values):
+            if not isinstance(key, _ast.Str) and \
+                    not isinstance(key, _ast.Num):
+                raise Exception('Dictionary keys can only be variables, strings or numbers')
             if not first:
                 self.output(',\n')
             else:
