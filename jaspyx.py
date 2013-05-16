@@ -230,6 +230,7 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.output(json.dumps(node.s))
 
   def visit_List(self, node):
+    self.output('[')
     first = True
     for elt in node.elts:
       if not first:
@@ -237,6 +238,7 @@ class JaspyxVisitor(ast.NodeVisitor):
       else:
         first = False
       self.visit(elt)
+    self.output(']')
 
   # Variable operations:
   def visit_Global(self, node):
