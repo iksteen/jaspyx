@@ -466,13 +466,7 @@ class JaspyxVisitor(ast.NodeVisitor):
         self.output(' && ')
       else:
         first = False
-      self.output('(')
-      self.visit(left)
-      self.output(' ')
-      self.visit(op)
-      self.output(' ')
-      self.visit(comparator)
-      self.output(')')
+      self.group([left, op, comparator])
       left = comparator
     if len(node.ops) > 1:
       self.output(')')
