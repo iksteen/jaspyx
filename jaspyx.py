@@ -345,6 +345,9 @@ class JaspyxVisitor(ast.NodeVisitor):
   def visit_BitOr(self, node):
     self.output('|')
 
+  def visit_BitXor(self, node):
+    self.output('^')
+
   def visit_Eq(self, node):
     self.output('==')
   
