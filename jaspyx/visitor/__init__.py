@@ -1,4 +1,6 @@
 from jaspyx.visitor.base_visitor import BaseVisitor
+from jaspyx.visitor.break_ import Break
+from jaspyx.visitor.continue_ import Continue
 from jaspyx.visitor.dict import Dict
 from jaspyx.visitor.func_isinstance import FuncIsinstance
 from jaspyx.visitor.func_js import FuncJS
@@ -20,6 +22,7 @@ from jaspyx.visitor.assign import Assign
 from jaspyx.visitor.augassign import AugAssign
 from jaspyx.visitor.subscript import Subscript
 from jaspyx.visitor.variable import Variable
+from jaspyx.visitor.while_ import While
 
 
 class DefaultVisitor(Types,
@@ -35,9 +38,12 @@ class DefaultVisitor(Types,
                      Assign,
                      AugAssign,
                      IfElse,
+                     While,
                      RegisterGlobal,
                      Function,
                      Return,
+                     Break,
+                     Continue,
                      Call,
                      PrintToConsole,
                      FuncJS,
