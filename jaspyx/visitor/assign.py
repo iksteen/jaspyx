@@ -5,23 +5,37 @@ from jaspyx.visitor import BaseVisitor
 
 class Assign(BaseVisitor):
     def visit_Assign_Slice(self, target, value):
-        if target.slice.lower is None:
-            lower = _ast.Num(0)
-        else:
-            lower = target.slice.lower
-
-        if target.slice.upper is None:
-            upper = _ast.Attribute(
-                target.value,
-                'length',
-                _ast.Load()
-            )
-        else:
-            upper = target.slice.upper
-
+        lower = target.slice.lower or _ast.Num(0)
+        upper = target.slice.upper or _ast.Attribute(target.value, 'length', _ast.Load())
         length = _ast.BinOp(upper, _ast.Sub(), lower)
 
-        arg_list = _ast.List([lower, length], _ast.Load())
+        tmp = self.stack[-1].scope.alloc_temp()
+        self.visit(
+            _ast.Assign(
+                [_ast.Name(tmp, _ast.Store())],
+                length
+            )
+        )
+
+        self.visit(
+            _ast.If(
+                _ast.Compare(
+                    ast_load(tmp),
+                    [_ast.Lt()],
+                    [_ast.Num(0)]
+                ),
+                [
+                    _ast.AugAssign(
+                        _ast.Name(tmp, _ast.Store()),
+                        _ast.Add(),
+                        _ast.Attribute(target.value, 'length', _ast.Load()),
+                    ),
+                ],
+                []
+            )
+        )
+
+        arg_list = _ast.List([lower, ast_load(tmp)], _ast.Load())
         arg_list = ast_call(_ast.Attribute(arg_list, 'concat', _ast.Load()), value)
         apply_func = ast_load('Array.prototype.splice.apply')
         call = ast_call(apply_func, target.value, arg_list)
