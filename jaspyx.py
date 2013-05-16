@@ -10,14 +10,14 @@ from jaspyx.context.function import FunctionContext
 from jaspyx.context.inline_function import InlineFunctionContext
 
 
-class Module(InlineFunctionContext):
+class ModuleContext(InlineFunctionContext):
   def __init__(self):
-    super(Module, self).__init__(None, '')
+    super(ModuleContext, self).__init__(None, '')
     for builtin in BUILTINS.values():
       self.scope.declare(builtin)
 
   def __str__(self):
-    return '(%s).call(this);' % super(Module, self).__str__()
+    return '(%s).call(this);' % super(ModuleContext, self).__str__()
 
 
 class JaspyxVisitor(ast.NodeVisitor):
@@ -97,7 +97,7 @@ class JaspyxVisitor(ast.NodeVisitor):
 
   # Scoped operations:
   def visit_Module(self, node):
-    self.module = Module()
+    self.module = ModuleContext()
     self.push(self.module)
     self.block(node.body)
 
