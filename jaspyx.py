@@ -512,13 +512,7 @@ class JaspyxVisitor(ast.NodeVisitor):
   def visit_BinOp(self, node):
     attr = getattr(self, 'visit_BinOp_%s' % node.op.__class__.__name__, None)
     if attr is None:
-      self.output('(')
-      self.visit(node.left)
-      self.output(' ')
-      self.visit(node.op)
-      self.output(' ')
-      self.visit(node.right)
-      self.output(')')
+      self.group([node.left, node.op, node.right])
     else:
       self.output('(')
       attr(node.op, node.left, node.right)
