@@ -1,8 +1,8 @@
 from jaspyx.builtins import BUILTINS
-from jaspyx.context.inline_function import InlineFunctionContext
+from jaspyx.context.function import FunctionContext
 
 
-class ModuleContext(InlineFunctionContext):
+class ModuleContext(FunctionContext):
     def __init__(self):
         super(ModuleContext, self).__init__(None, '')
         for builtin in BUILTINS.values():

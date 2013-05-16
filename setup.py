@@ -15,7 +15,7 @@ setup(name='jaspyx',
       author_email='iksteen@gmail.com',
       url='http://thegraveyard.org/',
       packages=find_packages(),
-      scripts=['jaspyx.py'],
+      scripts=['jaspyxc'],
       include_package_data=True,
       zip_safe=False,
 )

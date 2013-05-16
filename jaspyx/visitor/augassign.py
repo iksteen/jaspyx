@@ -19,11 +19,13 @@ class AugAssign(BaseVisitor):
             attr(node.target, node.op, node.value)
 
     def visit_AugAssign__op(self, target, op, value):
+        self.indent()
         self.visit(target)
         self.output(' ')
         self.visit(op)
         self.output('= ')
         self.visit(value)
+        self.finish()
 
     visit_AugAssign_Add = visit_AugAssign__op
     visit_AugAssign_Sub = visit_AugAssign__op

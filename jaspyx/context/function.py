@@ -1,12 +1,30 @@
-from jaspyx.context.inline_function import InlineFunctionContext
+from jaspyx.context.block import BlockContext
+from jaspyx.scope import Scope
 
 
-class FunctionContext(InlineFunctionContext):
+class FunctionContext(BlockContext):
     def __init__(self, parent, name, arg_names=[]):
-        super(FunctionContext, self).__init__(parent, name, arg_names)
+        super(FunctionContext, self).__init__(parent)
+        self.scope = Scope(self.scope)
+        self.name = name
+        self.arg_names = arg_names
+        for arg_name in self.arg_names:
+            self.scope.declare(arg_name)
 
     def __str__(self):
-        return '%s%s' % (
-            ' ' * self.indent,
-            super(FunctionContext, self).__str__(),
+        declare_vars = []
+        for reference in self.scope.references:
+            if not self.scope.is_declared(reference):
+                self.scope.declare(reference)
+                declare_vars.append(reference)
+
+        if declare_vars:
+            indent = ' ' * (self.indent + 2)
+            stmt = '%svar %s;\n' % (indent, ', '.join(declare_vars))
+            self.body.insert(0, stmt)
+
+        return 'function%s(%s) %s' % (
+            self.name and ' %s' % self.name or '',
+            ', '.join(self.arg_names),
+            super(FunctionContext, self).__str__()
         )

@@ -23,9 +23,12 @@ class Assign(BaseVisitor):
 
         arg_list = _ast.List([lower, length], _ast.Load())
         arg_list = ast_call(_ast.Attribute(arg_list, 'concat', _ast.Load()), value)
-        apply = ast_load('Array.prototype.splice.apply')
-        call = ast_call(apply, target.value, arg_list)
+        apply_func = ast_load('Array.prototype.splice.apply')
+        call = ast_call(apply_func, target.value, arg_list)
+
+        self.indent()
         self.visit(call)
+        self.finish()
 
     def visit_Assign(self, node):
         # Check for slice assignment
@@ -37,7 +40,9 @@ class Assign(BaseVisitor):
                 self.visit_Assign_Slice(target, node.value)
                 return
 
+        self.indent()
         for target in node.targets:
             self.visit(target)
         self.output(' = ')
         self.visit(node.value)
+        self.finish()

@@ -6,9 +6,6 @@ class BaseVisitor(ast.NodeVisitor):
     def __init__(self):
         self.stack = []
         self.module = None
-        self.do_indent = False
-        self.inhibit_semicolon = False
-        self.inhibit_cr = False
 
     def push(self, context):
         """
@@ -32,10 +29,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         This will also automatically prepend indention.
         """
-        if self.do_indent:
-            self.stack[-1].add(' ' * (self.stack[-1].indent + 2))
-            self.do_indent = False
         self.stack[-1].add(s)
+
+    def indent(self):
+        self.output(' ' * (self.stack[-1].indent + 2))
+
+    def finish(self):
+        self.output(';\n')
 
     def group(self, values, prefix='(', infix=' ', infix_node=None, suffix=')'):
         """
@@ -80,16 +80,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.push(context)
 
         for node in nodes:
-            self.do_indent = True
             self.visit(node)
-            if not self.inhibit_semicolon:
-                self.output(';')
-            else:
-                self.inhibit_semicolon = False
-            if not self.inhibit_cr:
-                self.output('\n')
-            else:
-                self.inhibit_cr = False
 
         if context is not None:
             self.pop()
@@ -106,10 +97,12 @@ class BaseVisitor(ast.NodeVisitor):
         self.block(node.body)
 
     def visit_Expr(self, node):
+        self.indent()
         self.visit(node.value)
+        self.finish()
 
     def visit_Pass(self, node):
-        self.inhibit_semicolon = self.inhibit_cr = True
+        pass
 
     def generic_visit(self, node):
         """

@@ -14,6 +14,8 @@ class Function(BaseVisitor):
         if node.args.kwarg is not None:
             raise Exception('**kwargs not supported')
 
+        self.indent()
+
         func = FunctionContext(self.stack[-1], node.name, args)
         self.push(func)
 
@@ -41,4 +43,4 @@ class Function(BaseVisitor):
 
         self.block(node.body)
         self.pop()
-        self.inhibit_semicolon = True
+        self.output('\n')
