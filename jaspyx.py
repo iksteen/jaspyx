@@ -5,30 +5,13 @@ import _ast
 import json
 
 from jaspyx.builtins import BUILTINS
+from jaspyx.context.block import BlockContext
 from jaspyx.scope import Scope
 
 
-class Context(object):
-  def __init__(self, parent):
-    if parent:
-      self.indent = parent.indent + 2
-      self.scope = parent.scope
-    else:
-      self.indent = 0
-      self.scope = Scope()
-    self.body = []
-
-  def add(self, part):
-    self.body.append(part)
-
-  def __str__(self):
-    return '{\n%s%s}' % (
-      ''.join([str(s) for s in self.body]),
-      ' ' * self.indent
-    )
 
 
-class InlineFunctionContext(Context):
+class InlineFunctionContext(BlockContext):
   def __init__(self, parent, name, arg_names=[]):
     super(InlineFunctionContext, self).__init__(parent)
     self.scope = Scope(self.scope)
@@ -314,12 +297,12 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.visit(node.test)
     self.output(') ')
 
-    self.block(node.body, context=Context(self.stack[-1]))
+    self.block(node.body, context=BlockContext(self.stack[-1]))
 
     if node.orelse:
       self.do_indent = False
       self.output(' else ')
-      self.block(node.orelse, context=Context(self.stack[-1]))
+      self.block(node.orelse, context=BlockContext(self.stack[-1]))
 
     self.inhibit_semicolon = True
 
