@@ -1,4 +1,5 @@
 from jaspyx.visitor.base_visitor import BaseVisitor
+from jaspyx.visitor.dict import Dict
 from jaspyx.visitor.func_js import FuncJS
 from jaspyx.visitor.func_type import FuncType
 from jaspyx.visitor.function import Function
@@ -21,6 +22,7 @@ from jaspyx.visitor.variable import Variable
 
 
 class DefaultVisitor(Types,
+                     Dict,
                      Variable,
                      Attribute,
                      Subscript,
