@@ -488,7 +488,7 @@ class JaspyxVisitor(ast.NodeVisitor):
       attr(node.target, node.op, node.value)
 
   def visit_AugAssign__op(self, target, op, value):
-    self.visit(_ast.Name(target.id, _ast.Load()))
+    self.visit(target)
     self.output(' ')
     self.visit(op)
     self.output('= ')
