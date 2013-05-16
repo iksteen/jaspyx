@@ -136,11 +136,32 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.inhibit_semicolon = False
     self.inhibit_cr = False
 
+
+  #
+  # Output helpers
+  #
+
   def output(self, s):
     if self.do_indent:
       self.stack[-1].add(Literal(' ' * (self.stack[-1].indent + 2)))
       self.do_indent = False
     self.stack[-1].add(Literal(s))
+
+  def group(self, values, prefix='(', infix=' ', infix_node=None, suffix=')'):
+    self.output(prefix)
+    first = True
+    for value in values:
+      if not first:
+        if infix:
+          self.output(infix)
+        if infix_node is not None:
+          self.visit(infix_node)
+          if infix:
+            self.output(infix)
+      else:
+        first = False
+      self.visit(value)
+    self.output(suffix)
 
   def block(self, nodes):
     for node in nodes:
