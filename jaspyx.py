@@ -51,7 +51,7 @@ class Scope(object):
     return name in self.globals
 
 
-class Block(object):
+class Context(object):
   def __init__(self, parent):
     if parent:
       self.indent = parent.indent + 2
@@ -71,7 +71,7 @@ class Block(object):
     )
 
 
-class InlineFunction(Block):
+class InlineFunction(Context):
   def __init__(self, parent, name, arg_names=[]):
     super(InlineFunction, self).__init__(parent)
     self.scope = Scope(self.scope)
@@ -357,12 +357,12 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.visit(node.test)
     self.output(') ')
 
-    self.block(node.body, context=Block(self.stack[-1]))
+    self.block(node.body, context=Context(self.stack[-1]))
 
     if node.orelse:
       self.do_indent = False
       self.output(' else ')
-      self.block(node.orelse, context = Block(self.stack[-1]))
+      self.block(node.orelse, context=Context(self.stack[-1]))
 
     self.inhibit_semicolon = True
 
