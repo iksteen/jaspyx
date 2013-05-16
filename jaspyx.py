@@ -44,25 +44,17 @@ class Scope(object):
   def is_global(self, name):
     return name in self.globals
 
-class PartialStatement(object):
+
+class Literal(object):
   def __init__(self, content):
     self.content = content
 
   def __str__(self):
     return self.content
 
-class ContinuedStatement(PartialStatement):
-  def __str__(self):
-    return self.content
-
-
-class Statement(ContinuedStatement):
-  def __str__(self):
-    return '%s;\n' % self.content
-
 
 class Block(object):
-  def __init__(self, parent, cr=True):
+  def __init__(self, parent):
     if parent:
       self.indent = parent.indent + 2
       self.scope = parent.scope
@@ -70,22 +62,20 @@ class Block(object):
       self.indent = 0
       self.scope = Scope()
     self.body = []
-    self.cr = cr
 
   def add(self, part):
     self.body.append(part)
 
   def __str__(self):
-    return '{\n%s%s}%s' % (
+    return '{\n%s%s}' % (
       ''.join([str(s) for s in self.body]),
-      ' ' * self.indent,
-      self.cr and '\n' or '',
+      ' ' * self.indent
     )
 
 
 class InlineFunction(Block):
   def __init__(self, parent, name, arg_names=[]):
-    super(InlineFunction, self).__init__(parent, cr=False)
+    super(InlineFunction, self).__init__(parent)
     self.scope = Scope(self.scope)
     self.name = name
     self.arg_names = arg_names
@@ -101,7 +91,7 @@ class InlineFunction(Block):
 
     if declare_vars:
       indent = ' ' * (self.indent + 2)
-      stmt = Statement('%svar %s' % (indent, ', '.join(declare_vars)))
+      stmt = Literal('%svar %s;\n' % (indent, ', '.join(declare_vars)))
       self.body.insert(0, stmt)
 
     return 'function%s(%s) %s' % (
@@ -114,10 +104,9 @@ class InlineFunction(Block):
 class Function(InlineFunction):
   def __init__(self, parent, name, arg_names=[]):
     super(Function, self).__init__(parent, name, arg_names)
-    self.cr = False
 
   def __str__(self):
-    return '%s%s\n' % (
+    return '%s%s' % (
       ' ' * self.indent,
       super(Function, self).__str__(),
     )
@@ -138,31 +127,39 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.stack = []
     self.module = None
     self.do_indent = False
-    self.stmt_buf = []
+    self.inhibit_semicolon = False
+    self.inhibit_cr = False
 
   def output(self, s):
-    if self.do_indent and not self.stmt_buf:
-      self.stmt_buf.append(' ' * (self.stack[-1].indent + 2))
+    if self.do_indent:
+      self.stack[-1].add(Literal(' ' * (self.stack[-1].indent + 2)))
       self.do_indent = False
-    self.stmt_buf.append(s)
-
-  def flush(self, stmt_class=Statement):
-    if self.stmt_buf:
-      self.stack[-1].add(stmt_class(''.join(self.stmt_buf)))
-      self.stmt_buf = []
+    self.stack[-1].add(Literal(s))
 
   def block(self, nodes):
     for node in nodes:
       self.do_indent = True
       self.visit(node)
-      self.flush()
+      if not self.inhibit_semicolon:
+        self.output(';')
+      else:
+        self.inhibit_semicolon = False
+      if not self.inhibit_cr:
+        self.output('\n')
+      else:
+        self.inhibit_cr = False
+
+  def push(self, block):
+    self.stack.append(block)
+
+  def pop(self):
+    self.stack[-2].add(self.stack.pop())
 
   # Scoped operations:
   def visit_Module(self, node):
     self.module = Module()
-    self.stack.append(self.module)
+    self.push(self.module)
     self.block(node.body)
-    self.stack.pop()
 
   def visit_FunctionDef(self, node):
     self.stack[-1].scope.declare(node.name)
@@ -174,7 +171,7 @@ class JaspyxVisitor(ast.NodeVisitor):
       raise Exception('**kwargs not supported')
 
     func = Function(self.stack[-1], node.name, args)
-    self.stack.append(func)
+    self.push(func)
 
     def_args = node.args.defaults
     for arg_name, arg_val in zip(args[-len(def_args):], def_args):
@@ -202,18 +199,16 @@ class JaspyxVisitor(ast.NodeVisitor):
       ])
 
     self.block(node.body)
-    self.stack[-2].add(self.stack.pop())
-    
+    self.pop()
+    self.inhibit_semicolon = True
 
   def visit_Lambda(self, node):
-    self.flush(PartialStatement)
-
     args = [arg.id for arg in node.args.args]
 
     func = InlineFunction(self.stack[-1], '', args)
-    self.stack.append(func)
+    self.push(func)
     self.block([_ast.Return(node.body)])
-    self.stack[-2].add(self.stack.pop())
+    self.pop()
 
   # Print
   def visit_Print(self, node):
@@ -247,6 +242,7 @@ class JaspyxVisitor(ast.NodeVisitor):
   def visit_Global(self, node):
     for name in node.names:
       self.stack[-1].scope.declare_global(name)
+    self.inhibit_semicolon = self.inhibit_cr = True
 
   def visit_Name(self, node):
     if self.stack[-1].scope.is_global(node.id):
@@ -271,7 +267,7 @@ class JaspyxVisitor(ast.NodeVisitor):
     self.visit(node.value)
 
   def visit_Pass(self, node):
-    pass
+    self.inhibit_semicolon = self.inhibit_cr = True
 
   def visit_Return(self, node):
     self.output('return ')
@@ -313,19 +309,19 @@ class JaspyxVisitor(ast.NodeVisitor):
   def visit_If(self, node):
     self.output('if(')
     self.visit(node.test)
-    self.output(')')
-    self.flush(PartialStatement)
+    self.output(') ')
 
-    self.stack.append(Block(self.stack[-1], cr=not node.orelse))
+    self.push(Block(self.stack[-1]))
     self.block(node.body)
-    self.stack[-2].add(self.stack.pop())
+    self.pop()
 
     if node.orelse:
       self.output('else')
-      self.flush(PartialStatement)
-      self.stack.append(Block(self.stack[-1], cr=True))
+      self.push(Block(self.stack[-1]))
       self.block(node.orelse)
-      self.stack[-2].add(self.stack.pop())
+      self.pop()
+
+    self.inhibit_semicolon = True
 
   # Operators:
   def visit_Add(self, node):
