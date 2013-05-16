@@ -4,24 +4,7 @@ import ast
 import _ast
 import json
 
-
-BUILTINS = {
-  'undefined': 'undefined',
-  'None': 'null',
-  'window': 'window',
-  'True': 'true',
-  'False': 'false',
-  'alert': 'alert',
-  'Object': 'Object',
-  'Number': 'Number',
-  'Boolean': 'Boolean',
-  'String': 'String',
-  'Array': 'Array',
-  'Date': 'Date',
-  'Math': 'Math',
-  'RegExp': 'RegExp',
-}
-
+from jaspyx.builtins import BUILTINS
 
 class Scope(object):
   def __init__(self, parent=None):
