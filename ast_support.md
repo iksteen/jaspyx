@@ -57,6 +57,16 @@ Supported grammar
         while False:
             pass
 
+- For
+
+    **notes**:
+    - This is always implemented using the JavaScript `for(i in iterable)` construct.
+    - The else clause of a for statement is not supported.
+
+            obj = {'a': 'b'}
+            for i in obj:
+                print i, obj[i]
+
 - If
 
         if False:
@@ -295,7 +305,6 @@ Unsupported grammar
 - ClassDef
 - Suite
 - Delete
-- For
 - With
 - Raise
 - TryExcept
