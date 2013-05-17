@@ -12,7 +12,11 @@ class Function(BaseVisitor):
         if node.args.kwarg is not None:
             raise Exception('**kwargs not supported')
 
-        self.indent()
+        # Name is empty when a lambda function is generated
+        if node.name:
+            self.indent()
+        else:
+            self.output('(')
 
         func = FunctionContext(self.stack[-1], node.name, args)
         self.push(func)
@@ -53,6 +57,12 @@ class Function(BaseVisitor):
                 )
             ])
 
+        # Emit function body
         self.block(node.body)
+
         self.pop()
-        self.output('\n')
+
+        if node.name:
+            self.output('\n')
+        else:
+            self.output(')')
