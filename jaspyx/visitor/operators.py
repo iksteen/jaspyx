@@ -33,3 +33,6 @@ class Operators(BaseVisitor):
 
     for op in operator_map.keys():
         exec ('visit_%s = visit__op' % op)
+
+    def visit_Not(self, node):
+        self.output('!')
