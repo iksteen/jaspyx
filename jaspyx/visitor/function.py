@@ -1,5 +1,5 @@
 import _ast
-from jaspyx.ast_util import ast_call
+from jaspyx.ast_util import ast_call, ast_load
 from jaspyx.context.function import FunctionContext
 from jaspyx.visitor import BaseVisitor
 
@@ -9,8 +9,6 @@ class Function(BaseVisitor):
         self.stack[-1].scope.declare(node.name)
 
         args = [arg.id for arg in node.args.args]
-        if node.args.vararg is not None:
-            raise Exception('*args not supported')
         if node.args.kwarg is not None:
             raise Exception('**kwargs not supported')
 
@@ -19,6 +17,20 @@ class Function(BaseVisitor):
         func = FunctionContext(self.stack[-1], node.name, args)
         self.push(func)
 
+        # Emit vararg
+        if node.args.vararg is not None:
+            self.visit(
+                _ast.Assign(
+                    [_ast.Name(node.args.vararg, _ast.Store())],
+                    ast_call(
+                        ast_load('Array.prototype.slice.call'),
+                        _ast.Name('arguments', _ast.Load()),
+                        _ast.Num(len(args)),
+                    )
+                )
+            )
+
+        # Emit default arguments
         def_args = node.args.defaults
         for arg_name, arg_val in zip(args[-len(def_args):], def_args):
             self.block([
