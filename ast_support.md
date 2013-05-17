@@ -15,6 +15,24 @@ Supported grammar
         def my_function(a, b, c=5):
             pass
 
+- ClassDef
+
+    ***notes***: Class model is currently very primitive.
+
+    - Only direct attributes and methods without decorators are supported.
+    - Inheritance is not supported.
+    - \_\_init\_\_ is called upon instantiation, if it is defined.
+
+    Example:
+
+        class MyClass:
+            answer = 42
+            def __init__(self):
+                pass
+
+            def question(self):
+                print self.answer
+
 - Return
 
         def my_function():
@@ -302,7 +320,6 @@ Unsupported grammar
 -------------------
 
 - Interactive
-- ClassDef
 - Suite
 - Delete
 - With

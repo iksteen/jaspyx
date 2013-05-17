@@ -1,5 +1,6 @@
 from jaspyx.visitor.base_visitor import BaseVisitor
 from jaspyx.visitor.break_ import Break
+from jaspyx.visitor.class_ import Class
 from jaspyx.visitor.continue_ import Continue
 from jaspyx.visitor.dict import Dict
 from jaspyx.visitor.for_ import For
@@ -47,6 +48,7 @@ class DefaultVisitor(Types,
                      For,
                      RegisterGlobal,
                      Function,
+                     Class,
                      Return,
                      Break,
                      Continue,
