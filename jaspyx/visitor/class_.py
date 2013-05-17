@@ -6,8 +6,8 @@ from jaspyx.visitor import BaseVisitor
 
 class Class(BaseVisitor):
     def visit_ClassDef(self, node):
-        if node.bases:
-            raise Exception('Inheritance not supported')
+        if len(node.bases) > 1:
+            raise Exception('Multiple inheritance not supported')
         if node.decorator_list:
             raise Exception('Decorators not supported')
 
@@ -115,6 +115,61 @@ class Class(BaseVisitor):
             ],
             []
         ))
+
+        if node.bases:
+            base = node.bases[0]
+            tmp = self.stack[-1].scope.alloc_temp()
+            self.visit(
+                ast.Assign(
+                    [ast.Attribute(
+                        ast_load(node.name),
+                        'prototype',
+                        ast.Store()
+                    )],
+                    ast_call(
+                        ast.FunctionDef(
+                            '',
+                            ast.arguments(
+                                [ast.Name('p', ast.Param())],
+                                None,
+                                None,
+                                []
+                            ),
+                            [
+                                ast.Assign(
+                                    [ast.Name(tmp, ast.Store())],
+                                    ast.FunctionDef(
+                                        '',
+                                        ast.arguments([], None, None, []),
+                                        [],
+                                        []
+                                    )
+                                ),
+                                ast.Assign(
+                                    [ast.Attribute(
+                                        ast.Name(tmp, ast.Load()),
+                                        'prototype',
+                                        ast.Store(),
+                                    )],
+                                    ast_load('p'),
+                                ),
+                                ast.Return(
+                                    ast_call(
+                                        ast_load('new'),
+                                        ast_load(tmp),
+                                    )
+                                )
+                            ],
+                            []
+                        ),
+                        ast.Attribute(
+                            base,
+                            'prototype',
+                            ast.Load()
+                        )
+                    )
+                )
+            )
 
         for stmt in node.body:
             if isinstance(stmt, _ast.FunctionDef):

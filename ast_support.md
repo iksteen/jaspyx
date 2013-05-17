@@ -20,18 +20,25 @@ Supported grammar
     ***notes***: Class model is currently very primitive.
 
     - Only direct attributes and methods without decorators are supported.
-    - Inheritance is not supported.
+    - Multiple inheritance is not supported.
+    - Inheritance is only supported from objects using the same convention as jaspyx.
     - \_\_init\_\_ is called upon instantiation, if it is defined.
+    - Special methods other than \_\_init\_\_ are not supported.
 
     Example:
 
         class MyClass:
             answer = 42
             def __init__(self):
-                pass
+                print 'This is A.__init__'
 
             def question(self):
                 print self.answer
+
+        class MySubClass(MyClass):
+            def __init__(self):
+                print 'This is B.__init__'
+                MyClass.prototype.__init__(self)
 
 - Return
 
