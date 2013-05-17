@@ -4,6 +4,7 @@ BUILTINS = {
     'arguments': 'arguments',
     'None': 'null',
     'window': 'window',
+    'console': 'console',
     'True': 'true',
     'False': 'false',
     'alert': 'alert',
