@@ -116,7 +116,21 @@ class Class(BaseVisitor):
             []
         ))
 
-        if node.bases:
+        if not node.bases:
+            self.visit(
+                ast.Assign(
+                    [ast.Attribute(
+                        ast_load(node.name),
+                        'prototype',
+                        ast.Store(),
+                    )],
+                    ast.Dict(
+                        [ast.Str('super')],
+                        [ast.List([ast_load(node.name)], ast.Load())]
+                    )
+                )
+            )
+        else:
             base = node.bases[0]
             tmp = self.stack[-1].scope.alloc_temp()
             self.visit(
@@ -167,6 +181,36 @@ class Class(BaseVisitor):
                             'prototype',
                             ast.Load()
                         )
+                    )
+                )
+            )
+
+            self.visit(
+                ast.Assign(
+                    [ast.Attribute(
+                        ast.Attribute(
+                            ast_load(node.name),
+                            'prototype',
+                            ast.Load()
+                        ),
+                        'super',
+                        ast.Store()
+                    )],
+                    ast_call(
+                        ast.Attribute(
+                            ast.Attribute(
+                                ast.Attribute(
+                                    ast_load(node.name),
+                                    'prototype',
+                                    ast.Load()
+                                ),
+                                'super',
+                                ast.Load()
+                            ),
+                            'concat',
+                            ast.Load(),
+                        ),
+                        ast_load(node.name),
                     )
                 )
             )
