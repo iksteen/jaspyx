@@ -5,5 +5,5 @@ from jaspyx.visitor import BaseVisitor
 class FuncNew(BaseVisitor):
     def func_new(self, type_, *args):
         self.output('(new ')
-        self.visit(ast_call(type_, ast_load('this'), *args))
+        self.visit(ast_call(type_, *args))
         self.output(')')
