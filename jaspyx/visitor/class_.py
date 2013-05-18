@@ -41,7 +41,7 @@ class Class(BaseVisitor):
                     ast_load('arguments.callee')
                 ),
                 ast.For(
-                    ast.Name('i', ast.Store()),
+                    ast_store('i'),
                     ast_load('this'),
                     [
                         ast.If(
@@ -88,11 +88,7 @@ class Class(BaseVisitor):
                     ast.Compare(
                         ast_call(
                             ast_load('type'),
-                            ast.Attribute(
-                                ast_load('this'),
-                                '__init__',
-                                ast.Load(),
-                            )
+                            ast_load('this.__init__'),
                         ),
                         [ast.IsNot()],
                         [ast.Str('undefined')],
@@ -100,15 +96,7 @@ class Class(BaseVisitor):
                     [
                         ast.Expr(
                             ast_call(
-                                ast.Attribute(
-                                    ast.Attribute(
-                                        ast_load('this'),
-                                        '__init__',
-                                        ast.Load()
-                                    ),
-                                    'apply',
-                                    ast.Load(),
-                                ),
+                                ast_load('this.__init__.apply'),
                                 ast_load('this'),
                                 ast_load('arguments'),
                             )
@@ -123,11 +111,7 @@ class Class(BaseVisitor):
         if not node.bases:
             self.visit(
                 ast.Assign(
-                    [ast.Attribute(
-                        ast_load(node.name),
-                        'prototype',
-                        ast.Store(),
-                    )],
+                    [ast_store(node.name, 'prototype')],
                     ast.Dict(
                         [
                             ast.Str('constructor'),
@@ -145,23 +129,14 @@ class Class(BaseVisitor):
             tmp = self.stack[-1].scope.alloc_temp()
             self.visit(
                 ast.Assign(
-                    [ast.Attribute(
-                        ast_load(node.name),
-                        'prototype',
-                        ast.Store()
-                    )],
+                    [ast_store(node.name, 'prototype')],
                     ast_call(
                         ast.FunctionDef(
                             '',
-                            ast.arguments(
-                                [ast.Name('p', ast.Param())],
-                                None,
-                                None,
-                                []
-                            ),
+                            ast.arguments([], None, None, []),
                             [
                                 ast.Assign(
-                                    [ast.Name(tmp, ast.Store())],
+                                    [ast_store(tmp)],
                                     ast.FunctionDef(
                                         '',
                                         ast.arguments([], None, None, []),
@@ -170,12 +145,8 @@ class Class(BaseVisitor):
                                     )
                                 ),
                                 ast.Assign(
-                                    [ast.Attribute(
-                                        ast.Name(tmp, ast.Load()),
-                                        'prototype',
-                                        ast.Store(),
-                                    )],
-                                    ast_load('p'),
+                                    [ast_store(tmp, 'prototype')],
+                                    ast_load(base.id, 'prototype'),
                                 ),
                                 ast.Return(
                                     ast_call(
@@ -186,54 +157,20 @@ class Class(BaseVisitor):
                             ],
                             []
                         ),
-                        ast.Attribute(
-                            base,
-                            'prototype',
-                            ast.Load()
-                        )
                     )
                 )
             )
-
             self.visit(
                 ast.Assign(
-                    [ast.Attribute(
-                        ast.Attribute(
-                            ast_load(node.name),
-                            'prototype',
-                            ast.Load(),
-                        ),
-                        'constructor',
-                        ast.Store()
-                    )],
+                    [ast_store(node.name, 'prototype.constructor')],
                     ast_load(node.name)
                 )
             )
             self.visit(
                 ast.Assign(
-                    [ast.Attribute(
-                        ast.Attribute(
-                            ast_load(node.name),
-                            'prototype',
-                            ast.Load()
-                        ),
-                        'super',
-                        ast.Store()
-                    )],
+                    [ast_store(node.name, 'prototype.super')],
                     ast_call(
-                        ast.Attribute(
-                            ast.Attribute(
-                                ast.Attribute(
-                                    ast_load(node.name),
-                                    'prototype',
-                                    ast.Load()
-                                ),
-                                'super',
-                                ast.Load()
-                            ),
-                            'concat',
-                            ast.Load(),
-                        ),
+                        ast_load(node.name, 'prototype.super.concat'),
                         ast_load(node.name),
                     )
                 )
@@ -241,44 +178,24 @@ class Class(BaseVisitor):
 
         for stmt in node.body:
             if isinstance(stmt, _ast.FunctionDef):
-                self.indent()
                 self.visit(
-                    _ast.Attribute(
-                        _ast.Attribute(
-                            ast_load(node.name),
-                            'prototype',
-                            ast.Load(),
-                        ),
-                        stmt.name,
-                        ast.Store()
+                    ast.Assign(
+                        [ast_store(node.name, 'prototype', stmt.name)],
+                        ast.FunctionDef(
+                            '',
+                            stmt.args,
+                            stmt.body,
+                            stmt.decorator_list
+                        )
                     )
                 )
-                self.output(' = ')
-                self.visit(
-                    ast.FunctionDef(
-                        '',
-                        stmt.args,
-                        stmt.body,
-                        stmt.decorator_list
-                    )
-                )
-                self.output(';\n')
             elif isinstance(stmt, _ast.Assign):
-                self.indent()
+                targets = []
                 for target in stmt.targets:
                     if not isinstance(target, _ast.Name):
                         raise Exception('Indirect assignment not supported in class definition')
-                    self.visit(
-                        _ast.Attribute(
-                            _ast.Attribute(
-                                ast_load(node.name),
-                                'prototype',
-                                ast.Load()
-                            ),
-                            target.id,
-                            ast.Store()
-                        )
-                    )
-                    self.output(' = ')
-                self.visit(stmt.value)
-                self.output(';\n')
+                    targets.append(ast_store(node.name, 'prototype', target.id))
+                self.visit(ast.Assign(
+                    targets,
+                    stmt.value
+                ))
