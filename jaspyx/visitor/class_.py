@@ -125,8 +125,14 @@ class Class(BaseVisitor):
                         ast.Store(),
                     )],
                     ast.Dict(
-                        [ast.Str('super')],
-                        [ast.List([ast_load(node.name)], ast.Load())]
+                        [
+                            ast.Str('constructor'),
+                            ast.Str('super')
+                        ],
+                        [
+                            ast_load(node.name),
+                            ast.List([ast_load(node.name)], ast.Load())
+                        ]
                     )
                 )
             )
@@ -185,6 +191,20 @@ class Class(BaseVisitor):
                 )
             )
 
+            self.visit(
+                ast.Assign(
+                    [ast.Attribute(
+                        ast.Attribute(
+                            ast_load(node.name),
+                            'prototype',
+                            ast.Load(),
+                        ),
+                        'constructor',
+                        ast.Store()
+                    )],
+                    ast_load(node.name)
+                )
+            )
             self.visit(
                 ast.Assign(
                     [ast.Attribute(
