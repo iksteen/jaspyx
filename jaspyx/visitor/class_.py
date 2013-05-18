@@ -115,7 +115,7 @@ class Class(BaseVisitor):
                     ast.Dict(
                         [
                             ast.Str('constructor'),
-                            ast.Str('super')
+                            ast.Str('__mro__')
                         ],
                         [
                             ast_load(node.name),
@@ -168,9 +168,9 @@ class Class(BaseVisitor):
             )
             self.visit(
                 ast.Assign(
-                    [ast_store(node.name, 'prototype.super')],
+                    [ast_store(node.name, 'prototype.__mro__')],
                     ast_call(
-                        ast_load(node.name, 'prototype.super.concat'),
+                        ast_load(node.name, 'prototype.__mro__.concat'),
                         ast_load(node.name),
                     )
                 )
