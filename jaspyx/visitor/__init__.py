@@ -7,6 +7,7 @@ from jaspyx.visitor.for_ import For
 from jaspyx.visitor.func_isinstance import FuncIsinstance
 from jaspyx.visitor.func_js import FuncJS
 from jaspyx.visitor.func_new import FuncNew
+from jaspyx.visitor.func_super import FuncSuper
 from jaspyx.visitor.func_type import FuncType
 from jaspyx.visitor.function import Function
 from jaspyx.visitor.call import Call
@@ -58,5 +59,6 @@ class DefaultVisitor(Types,
                      FuncJS,
                      FuncType,
                      FuncIsinstance,
-                     FuncNew):
+                     FuncNew,
+                     FuncSuper):
     pass
