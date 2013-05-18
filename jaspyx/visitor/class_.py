@@ -1,6 +1,6 @@
 import ast
 import _ast
-from jaspyx.ast_util import ast_load, ast_call
+from jaspyx.ast_util import ast_load, ast_call, ast_store
 from jaspyx.visitor import BaseVisitor
 
 
@@ -35,6 +35,10 @@ class Class(BaseVisitor):
                         )
                     ],
                     []
+                ),
+                ast.Assign(
+                    [ast_store('this.__class__')],
+                    ast_load('arguments.callee')
                 ),
                 ast.For(
                     ast.Name('i', ast.Store()),
