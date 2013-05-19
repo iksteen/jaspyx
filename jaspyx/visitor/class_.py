@@ -168,6 +168,12 @@ class Class(BaseVisitor):
             )
             self.visit(
                 ast.Assign(
+                    [ast_store(node.name, 'prototype.__base__')],
+                    base,
+                )
+            )
+            self.visit(
+                ast.Assign(
                     [ast_store(node.name, 'prototype.__mro__')],
                     ast_call(
                         ast_load(node.name, 'prototype.__mro__.concat'),
