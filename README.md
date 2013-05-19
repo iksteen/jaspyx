@@ -15,7 +15,7 @@ What is jaspyx?
 
 Jaspyx allows you to write JavaScript using a pythonic syntax. It does that by using python's built-in compiler to compile your jaspyx code and transliterating the resulting AST (abstract syntax tree) to JavaScript.
 
-Jaspyx tries to stay close to python syntax and idiom as long as this does not interfere with standard JavaScript behaviour.
+Jaspyx tries to stay close to python syntax and idiom as long as this does not interfere with standard JavaScript behaviour. Because it tries to stay close to the JavaScript idiom, jaspyx allows you to use existing JavaScript libraries.
 
 You can use it stand-alone using the bundled _jaspyxc_ command line tool or you can use it as a library in your own applications.
 
