@@ -16,7 +16,6 @@ from jaspyx.visitor.compare import Compare
 from jaspyx.visitor.if_else import IfElse
 from jaspyx.visitor.ifexp import IfExp
 from jaspyx.visitor.lambda_ import Lambda
-from jaspyx.visitor.operators import Operators
 from jaspyx.visitor.boolop import BoolOp
 from jaspyx.visitor.binop import BinOp
 from jaspyx.visitor.print_to_console import PrintToConsole
@@ -37,7 +36,6 @@ class DefaultVisitor(Types,
                      Attribute,
                      Subscript,
                      Lambda,
-                     Operators,
                      BoolOp,
                      UnaryOp,
                      BinOp,

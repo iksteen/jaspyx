@@ -12,7 +12,24 @@ class Compare(BaseVisitor):
                 self.output(' && ')
             else:
                 first = False
-            self.group([left, op, comparator])
+            comp_op = getattr(self, 'CmpOp_%s' % op.__class__.__name__)
+            comp_op(left, comparator)
             left = comparator
         if len(node.ops) > 1:
             self.output(')')
+
+    for key, value in {
+        'Eq': '==',
+        'NotEq': '!=',
+        'Lt': '<',
+        'LtE': '<=',
+        'Gt': '>',
+        'GtE': '>=',
+        'Is': '===',
+        'IsNot': '!==',
+    }.items():
+        def gen_op(op):
+            def f_op(self, left, comparator):
+                self.group([left, op, comparator])
+            return f_op
+        exec 'CmpOp_%s = gen_op("%s")' % (key, value)

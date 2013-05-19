@@ -4,7 +4,7 @@ from jaspyx.visitor import BaseVisitor
 
 class AugAssign(BaseVisitor):
     def visit_AugAssign(self, node):
-        attr = getattr(self, 'visit_AugAssign_%s' % node.op.__class__.__name__, None)
+        attr = getattr(self, 'AugAssign_%s' % node.op.__class__.__name__, None)
         if attr is None:
             # Rewrite the expression as an assignment using a BinOp
             self.visit(_ast.Assign(
@@ -18,20 +18,24 @@ class AugAssign(BaseVisitor):
         else:
             attr(node.target, node.op, node.value)
 
-    def visit_AugAssign__op(self, target, op, value):
-        self.indent()
-        self.visit(target)
-        self.output(' ')
-        self.visit(op)
-        self.output('= ')
-        self.visit(value)
-        self.finish()
-
-    visit_AugAssign_Add = visit_AugAssign__op
-    visit_AugAssign_Sub = visit_AugAssign__op
-    visit_AugAssign_Mult = visit_AugAssign__op
-    visit_AugAssign_Div = visit_AugAssign__op
-    visit_AugAssign_Mod = visit_AugAssign__op
-    visit_AugAssign_BitAnd = visit_AugAssign__op
-    visit_AugAssign_BitOr = visit_AugAssign__op
-    visit_AugAssign_BitXor = visit_AugAssign__op
+    for key, value in {
+        'Add': ' += ',
+        'Sub': ' -= ',
+        'Mult': ' *= ',
+        'Div': ' /= ',
+        'Mod': ' %= ',
+        'BitAnd': ' &= ',
+        'BitOr': ' |= ',
+        'BitXor': ' ^= ',
+    }.items():
+        def gen_op(op):
+            def f_op(self, target, value):
+                self.indent()
+                self.group(
+                    [target, value],
+                    prefix='',
+                    infix=op,
+                    suffix='',
+                )
+                self.finish()
+        exec 'AugAssign_%s = gen_op("%s")' % (key, value)

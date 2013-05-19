@@ -4,13 +4,19 @@ from jaspyx.visitor import BaseVisitor
 
 class UnaryOp(BaseVisitor):
     def visit_UnaryOp(self, node):
-        attr = getattr(self, 'visit_UnaryOp_%s' % node.op.__class__.__name__, None)
-        if attr is None:
-            self.group([node.op, node.operand], infix='')
-        else:
-            attr(node.op, node.operand)
+        attr = getattr(self, 'UnaryOp_%s' % node.op.__class__.__name__)
+        attr(node.operand)
 
-    def visit_UnaryOp_Invert(self, op, operand):
+    def UnaryOp_UAdd(self, operand):
+        self.group(['+', operand], infix='')
+
+    def UnaryOp_USub(self, operand):
+        self.group(['-', operand], infix='')
+
+    def UnaryOp_Not(self, operand):
+        self.group(['!', operand], infix='')
+
+    def UnaryOp_Invert(self, operand):
         self.visit(
             _ast.UnaryOp(
                 _ast.USub(),
