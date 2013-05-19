@@ -3,23 +3,24 @@ class Scope(object):
 
     def __init__(self, parent=None):
         self.parent = parent
-        self.declarations = set()
-        self.references = set()
+        self.prefix = []
+        self.declarations = {}
         self.globals = set()
+        self.inherited = True
 
-    def declare(self, name):
-        self.declarations.add(name)
+    def prefixed(self, name):
+        return '.'.join(self.prefix + [name])
 
-    def is_declared(self, name):
-        if name in self.declarations:
-            return True
+    def declare(self, name, var=True):
+        self.declarations[name] = var
+
+    def get_scope(self, name, inherit=False):
+        if name in self.declarations and (not inherit or self.inherited):
+            return self
         elif self.parent is not None:
-            return self.parent.is_declared(name)
+            return self.parent.get_scope(name, True)
         else:
-            return False
-
-    def reference(self, name):
-        self.references.add(name)
+            return None
 
     def declare_global(self, name):
         self.globals.add(name)

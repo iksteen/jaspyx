@@ -1,6 +1,7 @@
 import ast
 import _ast
 from jaspyx.ast_util import ast_load, ast_call, ast_store
+from jaspyx.context.class_ import ClassContext
 from jaspyx.visitor import BaseVisitor
 
 
@@ -108,10 +109,14 @@ class Class(BaseVisitor):
             []
         ))
 
+        self.push(ClassContext(self.stack[-1], node.name))
+        scope = self.stack[-1].scope
+
         if not node.bases:
+            scope.prefix.pop()
             self.visit(
                 ast.Assign(
-                    [ast_store(node.name, 'prototype')],
+                    [ast_store('prototype')],
                     ast.Dict(
                         [
                             ast.Str('constructor'),
@@ -124,6 +129,7 @@ class Class(BaseVisitor):
                     )
                 )
             )
+            scope.prefix.append('prototype')
         else:
             base = node.bases[0]
             tmp = self.stack[-1].scope.alloc_temp()
@@ -182,6 +188,10 @@ class Class(BaseVisitor):
                 )
             )
 
+        for stmt in node.body:
+            self.visit(stmt)
+        self.pop()
+        return
         for stmt in node.body:
             if isinstance(stmt, _ast.FunctionDef):
                 self.visit(

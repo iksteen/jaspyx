@@ -1,18 +1,11 @@
-from jaspyx.scope import Scope
+from jaspyx.context import Context
 
 
-class BlockContext(object):
+class BlockContext(Context):
     def __init__(self, parent):
+        super(BlockContext, self).__init__(parent)
         if parent:
-            self.indent = parent.indent + 2
-            self.scope = parent.scope
-        else:
-            self.indent = 0
-            self.scope = Scope()
-        self.body = []
-
-    def add(self, part):
-        self.body.append(part)
+            self.indent += 2
 
     def __str__(self):
         return '{\n%s%s}' % (
