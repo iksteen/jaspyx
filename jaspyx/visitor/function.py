@@ -6,7 +6,8 @@ from jaspyx.visitor import BaseVisitor
 
 class Function(BaseVisitor):
     def visit_FunctionDef(self, node):
-        self.stack[-1].scope.declare(node.name)
+        if node.name:
+            self.stack[-1].scope.declare(node.name)
 
         args = [arg.id for arg in node.args.args]
         if node.args.kwarg is not None:
