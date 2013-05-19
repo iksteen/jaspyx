@@ -63,7 +63,10 @@ class BaseVisitor(ast.NodeVisitor):
                         self.output(infix)
             else:
                 first = False
-            self.visit(value)
+            if isinstance(value, basestring):
+                self.output(value)
+            else:
+                self.visit(value)
         self.output(suffix)
 
     def block(self, nodes, context=None):
