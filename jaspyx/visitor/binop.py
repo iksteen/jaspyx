@@ -18,7 +18,7 @@ class BinOp(BaseVisitor):
         'BitOr': '|',
         'BitXor': '^',
         'LShift': '<<',
-        'RShift': '>>>',
+        'RShift': '>>',
     }.items():
         def gen_op(op):
             def f_op(self, left, right):
