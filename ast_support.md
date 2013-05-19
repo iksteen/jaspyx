@@ -1,29 +1,36 @@
 AST grammar
 ===========
 
-Supported grammar
------------------
+This document contains an enumeration of supported and unsupported AST nodes as described in the python documentation of the [ast module](http://docs.python.org/2/library/ast.html).
 
-- Module
 
-    Used when compiling a module.
+Supported statements
+--------------------
 
-- FunctionDef
+- `ast.FunctionDef`
 
-    **note**: \*\*kwargs is not supported. \*args and argument defaults are.
+    **notes**:
+    - `**kwargs` is not supported.
+    - `*args` and argument defaults are supported.
+
+    Example:
 
         def my_function(a, b, c=5):
             pass
 
-- ClassDef
+- `ast.ClassDef`
 
-    ***notes***: Class model is currently very primitive.
+    ***notes***:
 
-    - Only direct attributes and methods without decorators are supported.
+    - The class model is currently very primitive.
+    - Only direct attributes assignment and methods without decorators are supported.
     - Multiple inheritance is not supported.
-    - Inheritance is only supported from objects using the same convention as jaspyx.
-    - \_\_init\_\_ is called upon instantiation, if it is defined.
-    - Special methods other than \_\_init\_\_ are not supported.
+    - Inheritance is only supported from other jaspyx classes.
+    - The `__init__` method is called upon instantiation, if it is defined.
+    - `__class__` is set to the constructor, by the constructor.
+    - `__mro__` is an array of super-types in order of inheritance.
+    - `__base__` is set to the super-type of the class.
+    - No other special methods or attributes are implemented.
 
     Example:
 
@@ -40,59 +47,62 @@ Supported grammar
                 print 'This is B.__init__'
                 MyClass.prototype.__init__(self)
 
-- Return
+- `ast.Return`
+
+	Example:
 
         def my_function():
             return 42
 
-- Assign
+- `ast.Assign`
 
-	**note**: JavaScript does not support indexed assignment on strings.
+	**notes**:
+    - For details about indexed and slice assignment, see description of `ast.Subscript`.
 
-    Direct assignment:
+    Example:
 
-        a = [1, 2, 3, 4]
+        a = 'Hello, world!'
 
-    Indexed and slice assignment:
-        
-        a = [1, 2, 3, 4, 5]
-        a[0] = 6                 # [6, 2, 3, 4, 5]
-        a[:] = [7, 8, 9, 10, 11] # [7, 8, 9, 10, 11]
-        a[2:] = [12, 13]         # [7, 8, 12, 13]
-        a[:2] = [14, 15]         # [14, 15, 12, 13]
-        a[1:2] = [16, 17]        # [14, 16, 17, 12, 13]
-        a[-1:] = [18]            # [14, 16, 17, 12, 18]
-        a[:-1] = [19]            # [19, 18]
-        a[-2:-1] = [20, 21]      # [20, 21, 18]
+- `ast.AugAssign`
 
-- AugAssign
+    **notes**:
+    - Augmented assignment is supported for each operator for which Python supports it. In cases where JavaScript does not support an equivalent augmented assignment, the statement is rewritten using regular assignment and an `ast.BinOp`.
+    - For examples, see the *operators* section.
 
-    For more examples, see the individual operators.
+- `ast.Print`
 
-        a += 1
+    **notes**:
+    - Does not support specifying a different output file.
+    - This functionality depends on the _console_ facility of your browser.
+    - Trailing comma mode (`print a,`) is not supported.
 
-- Print
-
-    **note**: This functionality depends on the 'console' facility of your browser. Trailing comma mode (`print a,`) is not supported.
+    Example:
 
         print 'Hello, world!'
 
-- While
+- `ast.For`
+
+    **notes**:
+    - This is always implemented using the JavaScript `for(i in iterable)` construct.
+    - The `else` clause of the python `for` statement is not supported.
+    - Iterating an array using `for` will probably have unintended results.
+
+    Example:
+
+        obj = {'a': 'b'}
+        for i in obj:
+            print i, obj[i]
+
+- `ast.While`
+
+    Example:
 
         while False:
             pass
 
-- For
+- `ast.If`
 
-    **notes**:
-    - This is always implemented using the JavaScript `for(i in iterable)` construct.
-    - The else clause of a for statement is not supported.
-
-            obj = {'a': 'b'}
-            for i in obj:
-                print i, obj[i]
-
-- If
+    Example:
 
         if False:
             pass
@@ -101,67 +111,141 @@ Supported grammar
         else:
             pass
 
-- Global
+- `ast.Global`
+
+    Example:
 
         global status # Access window.status
         status = 'Hello, world!'
 
-- Expr
-- Pass
-- BoolOp
+- `ast.Expr`
+
+    Used when an expression is used as a statement.
+
+- `ast.Pass`
+
+- `ast.Break`
+
+    Example:
+   
+        for i in a:
+            if i == 'a':
+                break
+
+- `ast.Continue`
+
+    Example:
+
+        for i in a:
+            if not a[i]:
+                continue
+
+
+Expressions
+-----------
+
+- `ast.BoolOp`
+
+    **notes**:
+    - Compatible with all boolean operators (see below).
+
+    Example:
 
         a and b
 
-- BinOp
+- `ast.BinOp`
+
+    **notes**:
+    - Compatible with all operators (see below).
+
+    Example:
 
         a + b
 
-- UnaryOp
+- `ast.UnaryOp`
 
-        a = -a
+    **notes**:
+    - Compatible unary operators (see below)
+    
+    Example:
 
-- Lambda
+        -a
 
-    **note**: \*\*kwargs is not supported. \*args and argument defaults are.
+- `ast.Lambda`
 
-        my_f = lambda: 42
+    **notes**:
+    - Same notes apply as for `ast.FunctionDef`
 
-- IfExp
+    Example:
 
-        r = 'a' if True else False
+        a = lambda a, b, *args: a + b + ''.join(args)
 
-- Dict (only literal string / number keys are supported)
+- `ast.IfExp`
 
-        d = {'a': 1, 'b': 2}
+    **notes**:
+    - Implemented using JavaScript's ternary operator.
 
-- Compare
+    Example:
 
-        a < 42
-        1 < a < 4
+        'True' if b else 'False'
 
-- Call
+- `ast.Dict`
 
-    **note**: keyword arguments, *args and **kwargs are not supported.
+    **notes**:
+    - Implemented as a JavaScript object (`{}`).
+    - Only literals are supported as keys.
 
-        def my_function(a, b, c):
-            return a * b * c
-            
-        my_function(1, 2, 3)
+    Example:
 
+        d = {
+          'a': 'b',
+          'c': 'd',
+         }
 
-- Num
+- `ast.Compare`
+
+    **notes**:
+    - Compatible with all comparison operators (see below).
+
+    Example:
+
+        a < 5
+
+- `ast.Call`
+
+    **notes**:
+    - Keyword arguments, `*args` and `**kwargs` are not supported.
+
+    Example:
+
+        result = my_function(1, 2)
+
+- `ast.Num`
+
+    Example:
 
         42
 
-- Str
+- `ast.Str`
 
-        "Hello, world!"
+    Example:
 
-- Attribute
+        a = "Hello, world!"
 
-        window.status = window.location
+- `ast.Attribute`
 
-- Subscript
+    Example:
+    
+        window.status = '...'
+
+- `ast.Subscript`
+
+    **notes**:
+    - JavaScript does not support indexed assignment within strings.
+    - JavaScript does not support negative indexes (negative values in slices are supported though)
+    - Slice stepping, multi-dimensional slices and ellipsis are not supported.
+
+    Example:
 
         a = [1, 2, 3, 4, 5]
         print a[0]      # 1
@@ -183,168 +267,273 @@ Supported grammar
         print b[:-1]    # hell
         print b[-4:-1]  # ell
 
-- Name
+        a = [1, 2, 3, 4, 5]
+        a[0] = 6                 # [6, 2, 3, 4, 5]
+        a[:] = [7, 8, 9, 10, 11] # [7, 8, 9, 10, 11]
+        a[2:] = [12, 13]         # [7, 8, 12, 13]
+        a[:2] = [14, 15]         # [14, 15, 12, 13]
+        a[1:2] = [16, 17]        # [14, 16, 17, 12, 13]
+        a[-1:] = [18]            # [14, 16, 17, 12, 18]
+        a[:-1] = [19]            # [19, 18]
+        a[-2:-1] = [20, 21]      # [20, 21, 18]
 
-        print a
+- `ast.Name`
 
-- List
+    Example:
 
-        [1, 2, 3, 4, 5]
+        a = b
 
-- Tuple
+- `ast.List`
 
-         (1, 2, 3, 4, 5)
+    Example:
 
-- Slice
+        a = [1, 2, 3, 4, 5]
 
-    See Assign and Subscript for examples
+- `ast.Tuple`
 
-- Index
+    **notes**:
+    - Maps to JavaScript Array, same as list.
 
-   See Assign and Subscript for examples
+    Example:
 
-- And
+        a = (1, 2, 3, 4, 5)
 
-        a and b
 
-- Or
+Boolean operators
+-----------------
 
-        a or b
+- `ast.And`
 
-- Add
+    Example:
+
+        a and b and c
+
+- `ast.Or`
+
+    Example:
+
+        a or b or c
+
+
+Operators
+---------
+
+- `ast.Add`
+
+    Example:
 
         a + b
         a += b
 
-- Sub
+- `ast.Sub`
+
+    Example:
 
         a - b
         a -= b
 
-- Mult
+- `ast.Mult`
+
+    Example:
 
         a * b
         a *= b
 
-- Div
+- `ast.Div`
+
+    Example:
 
         a / b
         a /= b
 
-- Mod
+- `ast.Mod`
+
+    Example:
 
         a % b
         a %= b
 
-- Pow
+- `ast.Pow`
+
+    **notes**:
+    - Implemented as `Math.pow(a, b)`.
+
+    Example:
 
         a ** b
         a **= b
 
-- LShift
+- `ast.LShift`
+
+    Example:
 
         a << b
         a <<= b
 
-- RShift
-		
-    **note**: This uses the JavaScript >>> operator.
+- `ast.RShift`
+
+    Example:
 
         a >> b
         a >>= b
 
-- BitOr
+- `ast.BitOr`
+
+    Example:
 
         a | b
         a |= b
 
-- BitXor
+- `ast.BitXor`
+
+    Example:
 
         a ^ b
         a ^= b
 
-- BitAnd
+- `ast.BitAnd`
+
+    Example:
 
         a & b
         a &= b
 
-- FloorDiv
+- `ast.FloorDiv`
+
+    **notes**:
+    - Implemented as Math.floor(a / b).
+
+    Example:
 
         a // b
         a //= b
 
-- Invert
+
+Unary operators
+---------------
+
+- `ast.Invert`
 
     **note**: This translates to (-(x+1)).
 
-        ~a
+    Example:
 
-- UAdd
+        a = ~a
 
-        +a
+- `ast.Not`
 
-- USub
+    Example:
+
+        a = !a
+
+- `ast.UAdd`
+
+    Example:
+
+        a = +a
+
+- `ast.USub`
+
+    Example:
 
         -a
 
-- Not
 
-        !a
+Comparison operators
+--------------------
 
 - Eq
+
+    Example:
 
         a == b
 
 - NotEq
 
+    Example:
+
         a != b
 
 - Lt
+
+    Example:
 
         a < b
 
 - LtE
 
+    Example:
+
         a <= b
 
 - Gt
+
+    Example:
 
         a > b
 
 - GtE
 
+    Example:
+
         a >= b
 
 - Is
+
+    Example:
 
         a === undefined
 
 - IsNot
 
+    Example:
+
         a !== undefined
+
+- In
+
+    **notes**:
+    - Checks if comparator is an array by calling `Array.isArray`.
+    - If comparator is an array, `indexOf` is used to check presence of left-hand side.
+    - If comparator is not an array, `in` is used to check presence of left-hand side.
+
+    Example:
+
+        'foo' in ['foo', 'bar', 'baz']
+        'foo' in {'foo': 1, 'bar': 2, 'baz': 3}
+
+- NotIn
+
+    **notes**:
+    - Implemented as `(!(left in comparator))`
+
+    Example:
+    
+        'foo' not in ['bar', 'baz', 'quux']
+        'foo' not in {'bar': 1, 'baz': 2, 'quux': 3}
+
 
 Unsupported grammar
 -------------------
 
-- Interactive
-- Suite
-- Delete
-- With
-- Raise
-- TryExcept
-- TryFinally
-- Assert
-- Import
-- ImportFrom
-- Exec
-- Set
-- ListComp
-- SetComp
-- DictComp
-- GeneratorExp
-- Yield
-- Repr
-- Ellipsis
-- ExtSlice
-- In
-- NotIn
+- `ast.Interactive`
+- `ast.Expression`
+- `ast.Suite`
+- `ast.Delete`
+- `ast.With`
+- `ast.Raise`
+- `ast.TryExcept`
+- `ast.TryFinally`
+- `ast.Assert`
+- `ast.Import`
+- `ast.ImportFrom`
+- `ast.Exec`
+- `ast.Set`
+- `ast.ListComp`
+- `ast.SetComp`
+- `ast.DictComp`
+- `ast.GeneratorExp`
+- `ast.Yield`
+- `ast.Repr`
+- `ast.Ellipsis`
+- `ast.ExtSlice`
