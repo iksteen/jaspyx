@@ -1,3 +1,5 @@
+import ast
+from jaspyx.ast_util import ast_call, ast_load
 from jaspyx.visitor import BaseVisitor
 
 
@@ -33,3 +35,52 @@ class Compare(BaseVisitor):
                 self.group([left, op, comparator])
             return f_op
         exec 'CmpOp_%s = gen_op("%s")' % (key, value)
+
+    def visit_In(self, node):
+        self.output(' in ')
+
+    def CmpOp_In(self, left, comparator):
+        self.visit(ast_call(
+            ast.FunctionDef(
+                '',
+                ast.arguments([ast_load('l'), ast_load('c')], None, None, []),
+                [
+                    ast.Return(
+                        ast.IfExp(
+                            ast_call(
+                                ast_load('Array.isArray'),
+                                ast_load('c'),
+                            ),
+                            ast.Compare(
+                                ast_call(
+                                    ast_load('Array.prototype.indexOf.call'),
+                                    ast_load('c'),
+                                    ast_load('l'),
+                                ),
+                                [ast.Gt()],
+                                [ast.Num(-1)]
+                            ),
+                            ast_call(
+                                ast_load('JS'),
+                                ast.Str("l in c"),
+                            )
+                        )
+                    )
+                ],
+                []
+            ),
+            left,
+            comparator
+        ))
+
+    def CmpOp_NotIn(self, left, comparator):
+        self.visit(
+            ast.UnaryOp(
+                ast.Not(),
+                ast.Compare(
+                    left,
+                    [ast.In()],
+                    [comparator]
+                )
+            )
+        )
