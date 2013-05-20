@@ -150,7 +150,6 @@ class Class(BaseVisitor):
             )
         else:
             base = node.bases[0]
-            tmp = self.stack[-1].scope.alloc_temp()
             self.visit(
                 ast.Assign(
                     [ast_store(node.name, 'prototype')],
@@ -160,7 +159,7 @@ class Class(BaseVisitor):
                             ast.arguments([], None, None, []),
                             [
                                 ast.Assign(
-                                    [ast_store(tmp)],
+                                    [ast_store('tmp')],
                                     ast.FunctionDef(
                                         '',
                                         ast.arguments([], None, None, []),
@@ -169,13 +168,13 @@ class Class(BaseVisitor):
                                     )
                                 ),
                                 ast.Assign(
-                                    [ast_store(tmp, 'prototype')],
+                                    [ast_store('tmp', 'prototype')],
                                     ast_load(base.id, 'prototype'),
                                 ),
                                 ast.Return(
                                     ast_call(
                                         ast_load('new'),
-                                        ast_load(tmp),
+                                        ast_load('tmp'),
                                     )
                                 )
                             ],
