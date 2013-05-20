@@ -191,27 +191,3 @@ class Class(BaseVisitor):
         for stmt in node.body:
             self.visit(stmt)
         self.pop()
-        return
-        for stmt in node.body:
-            if isinstance(stmt, _ast.FunctionDef):
-                self.visit(
-                    ast.Assign(
-                        [ast_store(node.name, 'prototype', stmt.name)],
-                        ast.FunctionDef(
-                            '',
-                            stmt.args,
-                            stmt.body,
-                            stmt.decorator_list
-                        )
-                    )
-                )
-            elif isinstance(stmt, _ast.Assign):
-                targets = []
-                for target in stmt.targets:
-                    if not isinstance(target, _ast.Name):
-                        raise Exception('Indirect assignment not supported in class definition')
-                    targets.append(ast_store(node.name, 'prototype', target.id))
-                self.visit(ast.Assign(
-                    targets,
-                    stmt.value
-                ))
