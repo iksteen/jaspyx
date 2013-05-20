@@ -24,5 +24,12 @@ class Variable(BaseVisitor):
                     self.output(var_scope.prefixed(node.id))
                 else:
                     self.output(BUILTINS.get(node.id, global_scope.prefixed(node.id)))
+        elif isinstance(node.ctx, _ast.Del):
+            if scope.is_global(node.id):
+                self.output(scope.get_global_scope().prefixed(node.id))
+            else:
+                if not node.id in scope.declarations:
+                    raise UnboundLocalError("local variable '%s' referenced before assignment" % node.id)
+                self.output(scope.prefixed(node.id))
         else:
             raise NotImplementedError('name lookup not implemented for context %s' % node.ctx.__class__.__name__)
