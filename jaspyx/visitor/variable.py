@@ -9,13 +9,13 @@ class Variable(BaseVisitor):
 
         if isinstance(node.ctx, _ast.Store):
             if scope.is_global(node.id):
-                self.output('__module__.' + node.id)
+                self.output(scope.get_global_scope().prefixed(node.id))
             else:
                 scope.declare(node.id)
                 self.output(scope.prefixed(node.id))
         elif isinstance(node.ctx, _ast.Load):
             if scope.is_global(node.id):
-                self.output('__module__.' + node.id)
+                self.output(scope.get_global_scope().prefixed(node.id))
             else:
                 var_scope = scope.get_scope(node.id)
                 if var_scope is not None:

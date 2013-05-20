@@ -28,6 +28,12 @@ class Scope(object):
     def is_global(self, name):
         return name in self.globals
 
+    def get_global_scope(self):
+        if self.parent:
+            return self.parent.get_global_scope()
+        else:
+            return self
+
     @classmethod
     def alloc_temp(cls):
         cls.tmp_index += 1
