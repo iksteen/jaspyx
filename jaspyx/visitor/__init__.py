@@ -20,6 +20,7 @@ from jaspyx.visitor.lambda_ import Lambda
 from jaspyx.visitor.boolop import BoolOp
 from jaspyx.visitor.binop import BinOp
 from jaspyx.visitor.print_to_console import PrintToConsole
+from jaspyx.visitor.raise_ import Raise
 from jaspyx.visitor.register_global import RegisterGlobal
 from jaspyx.visitor.return_ import Return
 from jaspyx.visitor.types import Types
@@ -46,6 +47,7 @@ class DefaultVisitor(Types,
                      IfElse,
                      While,
                      For,
+                     Raise,
                      RegisterGlobal,
                      Function,
                      Class,

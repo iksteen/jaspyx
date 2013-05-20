@@ -117,6 +117,15 @@ Supported statements
         else:
             pass
 
+- `ast.Raise`
+
+    **notes**:
+    - Only the single clause raise statement is supported.
+
+    Example:
+
+        raise 'Something went wrong!'
+
 - `ast.Global`
 
     Example:
@@ -526,7 +535,6 @@ Unsupported grammar
 - `ast.Expression`
 - `ast.Suite`
 - `ast.With`
-- `ast.Raise`
 - `ast.TryExcept`
 - `ast.TryFinally`
 - `ast.Assert`
