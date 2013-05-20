@@ -1,6 +1,4 @@
 class Scope(object):
-    tmp_index = 0
-
     def __init__(self, parent=None):
         self.parent = parent
         self.prefix = []
@@ -33,8 +31,3 @@ class Scope(object):
             return self.parent.get_global_scope()
         else:
             return self
-
-    @classmethod
-    def alloc_temp(cls):
-        cls.tmp_index += 1
-        return '__jpx_tmp_%i' % cls.tmp_index
