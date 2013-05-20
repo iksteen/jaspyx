@@ -52,6 +52,14 @@ Supported statements
         def my_function():
             return 42
 
+- `ast.Delete`
+
+    Example:
+
+        a = {1: 2}
+        del a[1]
+        del a
+
 - `ast.Assign`
 
 	**notes**:
@@ -517,7 +525,6 @@ Unsupported grammar
 - `ast.Interactive`
 - `ast.Expression`
 - `ast.Suite`
-- `ast.Delete`
 - `ast.With`
 - `ast.Raise`
 - `ast.TryExcept`
