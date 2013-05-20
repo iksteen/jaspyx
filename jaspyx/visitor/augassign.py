@@ -16,7 +16,7 @@ class AugAssign(BaseVisitor):
                 )
             ))
         else:
-            attr(node.target, node.op, node.value)
+            attr(node.target, node.value)
 
     for key, value in {
         'Add': ' += ',
@@ -38,4 +38,5 @@ class AugAssign(BaseVisitor):
                     suffix='',
                 )
                 self.finish()
+            return f_op
         exec 'AugAssign_%s = gen_op("%s")' % (key, value)
