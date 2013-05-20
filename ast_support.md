@@ -22,8 +22,6 @@ Supported statements
 
     ***notes***:
 
-    - The class model is currently very primitive.
-    - Only direct attributes assignment and methods without decorators are supported.
     - Multiple inheritance is not supported.
     - Inheritance is only supported from other jaspyx classes.
     - The `__init__` method is called upon instantiation, if it is defined.
