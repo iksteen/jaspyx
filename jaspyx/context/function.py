@@ -5,7 +5,8 @@ from jaspyx.scope import Scope
 class FunctionContext(BlockContext):
     def __init__(self, parent, name, arg_names=[]):
         super(FunctionContext, self).__init__(parent)
-        self.scope = Scope(self.scope)
+        if parent:
+            self.scope = Scope(self.scope)
         self.name = name
         self.arg_names = arg_names
         for arg_name in self.arg_names:
