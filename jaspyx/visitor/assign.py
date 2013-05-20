@@ -1,5 +1,6 @@
 import _ast
-from jaspyx.ast_util import ast_call, ast_load
+import ast
+from jaspyx.ast_util import ast_call, ast_load, ast_store
 from jaspyx.visitor import BaseVisitor
 
 
@@ -9,40 +10,62 @@ class Assign(BaseVisitor):
         upper = target.slice.upper or _ast.Attribute(target.value, 'length', _ast.Load())
         length = _ast.BinOp(upper, _ast.Sub(), lower)
 
-        tmp = self.stack[-1].scope.alloc_temp()
         self.visit(
-            _ast.Assign(
-                [_ast.Name(tmp, _ast.Store())],
-                length
-            )
-        )
-
-        self.visit(
-            _ast.If(
-                _ast.Compare(
-                    ast_load(tmp),
-                    [_ast.Lt()],
-                    [_ast.Num(0)]
-                ),
-                [
-                    _ast.AugAssign(
-                        _ast.Name(tmp, _ast.Store()),
-                        _ast.Add(),
-                        _ast.Attribute(target.value, 'length', _ast.Load()),
+            ast.Expr(
+                ast_call(
+                    ast.FunctionDef(
+                        '',
+                        ast.arguments(
+                            [
+                                ast_store('t'),
+                                ast_store('v'),
+                                ast_store('s'),
+                                ast_store('l'),
+                            ], None, None, []
+                        ),
+                        [
+                            ast.If(
+                                ast.Compare(
+                                    ast_load('l'),
+                                    [ast.Lt()],
+                                    [ast.Num(0)]
+                                ),
+                                [
+                                    ast.AugAssign(
+                                        ast_load('l'),
+                                        ast.Add(),
+                                        ast_load('t.length')
+                                    ),
+                                ],
+                                []
+                            ),
+                            ast.Expr(
+                                ast_call(
+                                    ast_load('Array.prototype.splice.apply'),
+                                    ast_load('t'),
+                                    ast_call(
+                                        ast.Attribute(
+                                            ast.List([
+                                                ast_load('s'),
+                                                ast_load('l'),
+                                            ], ast.Load()),
+                                            'concat',
+                                            ast.Load(),
+                                        ),
+                                        ast_load('v'),
+                                    )
+                                )
+                            )
+                        ],
+                        []
                     ),
-                ],
-                []
+                    target.value,
+                    value,
+                    lower,
+                    length,
+                )
             )
         )
-
-        arg_list = _ast.List([lower, ast_load(tmp)], _ast.Load())
-        arg_list = ast_call(_ast.Attribute(arg_list, 'concat', _ast.Load()), value)
-        apply_func = ast_load('Array.prototype.splice.apply')
-        call = ast_call(apply_func, target.value, arg_list)
-
-        self.indent()
-        self.visit(call)
-        self.finish()
 
     def visit_Assign(self, node):
         # Check for slice assignment
