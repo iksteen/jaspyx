@@ -41,49 +41,11 @@ class Class(BaseVisitor):
                     [ast_store('this.__class__')],
                     ast_load('arguments.callee')
                 ),
-                ast.For(
-                    ast_store('i'),
-                    ast_load('this'),
-                    [
-                        ast.If(
-                            ast.Compare(
-                                ast_call(
-                                    ast_load('type'),
-                                    ast.Subscript(
-                                        ast_load('this'),
-                                        ast.Index(ast_load('i')),
-                                        ast.Load(),
-                                    )
-                                ),
-                                [ast.Is()],
-                                [ast.Str('function')]
-                            ),
-                            [
-                                ast.Assign(
-                                    [ast.Subscript(
-                                        ast_load('this'),
-                                        ast.Index(ast_load('i')),
-                                        ast.Store(),
-                                    )],
-                                    ast_call(
-                                        ast.Attribute(
-                                            ast.Subscript(
-                                                ast_load('this'),
-                                                ast.Index(ast_load('i')),
-                                                ast.Load(),
-                                            ),
-                                            'bind',
-                                            ast.Load(),
-                                        ),
-                                        ast_load('this'),
-                                        ast_load('this'),
-                                    )
-                                ),
-                            ],
-                            []
-                        )
-                    ],
-                    []
+                ast.Expr(
+                    ast_call(
+                        ast_load('this.__bind__'),
+                        ast_load('this'),
+                    ),
                 ),
                 ast.If(
                     ast.Compare(
@@ -130,6 +92,62 @@ class Class(BaseVisitor):
                 )
             )
             scope.prefix.append('prototype')
+            self.visit(
+                ast.Assign(
+                    [ast_store('__bind__')],
+                    ast.FunctionDef(
+                        '',
+                        ast.arguments([ast_load('self')], None, None, []),
+                        [
+                            ast.For(
+                                ast_store('i'),
+                                ast_load('this'),
+                                [
+                                    ast.If(
+                                        ast.Compare(
+                                            ast_call(
+                                                ast_load('type'),
+                                                ast.Subscript(
+                                                    ast_load('this'),
+                                                    ast.Index(ast_load('i')),
+                                                    ast.Load(),
+                                                )
+                                            ),
+                                            [ast.Is()],
+                                            [ast.Str('function')]
+                                        ),
+                                        [
+                                            ast.Assign(
+                                                [ast.Subscript(
+                                                    ast_load('this'),
+                                                    ast.Index(ast_load('i')),
+                                                    ast.Store(),
+                                                )],
+                                                ast_call(
+                                                    ast.Attribute(
+                                                        ast.Subscript(
+                                                            ast_load('this'),
+                                                            ast.Index(ast_load('i')),
+                                                            ast.Load(),
+                                                        ),
+                                                        'bind',
+                                                        ast.Load(),
+                                                    ),
+                                                    ast_load('self'),
+                                                    ast_load('self'),
+                                                )
+                                            ),
+                                        ],
+                                        []
+                                    )
+                                ],
+                                []
+                            ),
+                        ],
+                        []
+                    )
+                )
+            )
         else:
             base = node.bases[0]
             tmp = self.stack[-1].scope.alloc_temp()
