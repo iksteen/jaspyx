@@ -10,7 +10,16 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print >> sys.stderr, 'Syntax: %s <input>' % sys.argv[0]
         sys.exit(1)
+    registry = {}
     c = ast.parse(open(sys.argv[1]).read(), sys.argv[1])
-    v = DefaultVisitor()
+    v = DefaultVisitor(registry)
     v.visit(c)
-    print str(v.module)
+    registry['__main__'] = str(v.module)
+
+    print '(function() {'
+    print '  var registry = {'
+    for module, body in registry.items():
+        print '    "%s": %s,' % (module, body)
+    print '  };'
+    print '  registry["__main__"]({ __registry__: registry });'
+    print '})();'

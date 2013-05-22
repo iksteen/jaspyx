@@ -3,7 +3,8 @@ from jaspyx.context.module import ModuleContext
 
 
 class BaseVisitor(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self, registry):
+        self.registry = registry
         self.stack = []
         self.module = None
 
