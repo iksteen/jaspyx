@@ -9,4 +9,7 @@ class ModuleContext(FunctionContext):
         self.scope.prefix.append('__module__')
 
     def __str__(self):
+        indent = ' ' * (self.indent + 2)
+        stmt = '%sreturn __module__;\n' % indent
+        self.body.append(stmt)
         return '(%s)' % super(ModuleContext, self).__str__()
