@@ -47,31 +47,44 @@ class Import(BaseVisitor):
                             ast_call(
                                 ast_load('type'),
                                 ast.Subscript(
-                                    ast_load('__registry__'),
+                                    ast_load('__modules__'),
                                     ast.Index(ast.Str(module_name)),
                                     ast.Load(),
                                 )
                             ),
                             [ast.Eq()],
-                            [ast.Str('function')]
+                            [ast.Str('undefined')]
                         ),
                         [
                             ast.Assign(
                                 [ast.Subscript(
-                                    ast_load('__registry__'),
+                                    ast_load('__modules__'),
                                     ast.Index(ast.Str(module_name)),
                                     ast.Store(),
                                 )],
+                                ast.Dict(
+                                    keys=[
+                                        ast.Str('__modules__'),
+                                        ast.Str('__registry__'),
+                                    ],
+                                    values=[
+                                        ast_load('__modules__'),
+                                        ast_load('__registry__'),
+                                    ]
+                                )
+                            ),
+                            ast.Expr(
                                 ast_call(
                                     ast.Subscript(
                                         ast_load('__registry__'),
                                         ast.Index(ast.Str(module_name)),
-                                        ast.Store(),
+                                        ast.Load(),
                                     ),
-                                    ast.Dict(
-                                        keys=[ast.Str('__registry__')],
-                                        values=[ast_load('__registry__')]
-                                    )
+                                    ast.Subscript(
+                                        ast_load('__modules__'),
+                                        ast.Index(ast.Str(module_name)),
+                                        ast.Load(),
+                                    ),
                                 )
                             )
                         ] + ([
@@ -79,7 +92,7 @@ class Import(BaseVisitor):
                                 [
                                     ast.Attribute(
                                         ast.Subscript(
-                                            ast_load('__registry__'),
+                                            ast_load('__modules__'),
                                             ast.Index(ast.Str('.'.join(module_path[:-1]))),
                                             ast.Load()
                                         ),
@@ -88,7 +101,7 @@ class Import(BaseVisitor):
                                     )
                                 ],
                                 ast.Subscript(
-                                    ast_load('__registry__'),
+                                    ast_load('__modules__'),
                                     ast.Index(ast.Str(module_name)),
                                     ast.Load()
                                 )
@@ -102,13 +115,13 @@ class Import(BaseVisitor):
                 self.visit(
                     ast.Assign(
                         [ast_store(module_path[0])],
-                        ast_load('__registry__', module_path[0])
+                        ast_load('__modules__', module_path[0])
                     )
                 )
             else:
                 self.visit(
                     ast.Assign(
                         [ast_store(name.asname)],
-                        ast_load('__registry__', *module_path)
+                        ast_load('__modules__', *module_path)
                     )
                 )
