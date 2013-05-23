@@ -23,8 +23,9 @@ if __name__ == '__main__':
     for module, body in registry.items():
         print '    "%s": %s,' % (module, str(body.module))
     print '  };'
-    print '  registry["__main__"]({'
-    print '    __modules__: modules,'
-    print '    __registry__: registry'
-    print '  });'
+    print '  modules["__main__"] = {'
+    print '    "__modules__": modules,'
+    print '    "__registry__": registry,'
+    print '  };'
+    print '  registry["__main__"](modules["__main__"]);'
     print '})();'
