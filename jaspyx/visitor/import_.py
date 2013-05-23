@@ -22,9 +22,14 @@ class Import(BaseVisitor):
         else:
             raise ImportError('module %s not found' % module_name)
 
+        # Early registration of module presence to prevent recursion
+        self.registry[module_name] = None
+
         c = ast.parse(open(module_path).read(), module_path)
         v = self.__class__(self.registry)
+        v.import_path = self.import_path
         v.visit(c)
+
         self.registry[module_name] = str(v.module)
 
     def visit_Import(self, node):
