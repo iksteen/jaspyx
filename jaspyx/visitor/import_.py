@@ -12,25 +12,26 @@ class Import(BaseVisitor):
         if module_name in self.registry:
             return
 
-        for path in self.import_path:
-            module_path = os.path.join(path, *(pieces + ['__init__.jpx']))
+        if len(pieces) > 1:
+            parent = self.registry['.'.join(pieces[:-1])]
+            import_path = [os.path.split(parent.path)[0]]
+        else:
+            import_path = self.import_path
+
+        for path in import_path:
+            module_path = os.path.join(path, pieces[-1], '__init__.jpx')
             if os.path.exists(module_path):
                 break
-            module_path = os.path.join(path, *pieces) + '.jpx'
+            module_path = os.path.join(path, pieces[-1]) + '.jpx'
             if os.path.isfile(module_path):
                 break
         else:
             raise ImportError('module %s not found' % module_name)
 
-        # Early registration of module presence to prevent recursion
-        self.registry[module_name] = None
-
         c = ast.parse(open(module_path).read(), module_path)
-        v = self.__class__(module_path, self.registry)
+        self.registry[module_name] = v = self.__class__(module_path, self.registry)
         v.import_path = self.import_path
         v.visit(c)
-
-        self.registry[module_name] = str(v.module)
 
     def visit_Import(self, node):
         for name in node.names:
