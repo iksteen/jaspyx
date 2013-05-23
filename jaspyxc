@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import ast
+import os
 from jaspyx.visitor import DefaultVisitor
 
 
@@ -13,6 +14,7 @@ if __name__ == '__main__':
     registry = {}
     c = ast.parse(open(sys.argv[1]).read(), sys.argv[1])
     v = DefaultVisitor(registry)
+    v.import_path = [os.path.split(sys.argv[1])[0]]
     v.visit(c)
     registry['__main__'] = str(v.module)
 
