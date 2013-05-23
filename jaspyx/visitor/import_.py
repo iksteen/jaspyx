@@ -5,16 +5,22 @@ from jaspyx.visitor import BaseVisitor
 
 
 class Import(BaseVisitor):
+    import_path = ['.']
+
     def import_module(self, pieces):
         module_name = '.'.join(pieces)
         if module_name in self.registry:
             return
 
-        module_path = os.path.join(*(pieces + ['__init__.jpx']))
-        if not os.path.exists(module_path):
-            module_path = os.path.join(*pieces) + '.jpx'
-            if not os.path.isfile(module_path):
-                raise ImportError('module %s not found' % module_name)
+        for path in self.import_path:
+            module_path = os.path.join(path, *(pieces + ['__init__.jpx']))
+            if os.path.exists(module_path):
+                break
+            module_path = os.path.join(path, *pieces) + '.jpx'
+            if os.path.isfile(module_path):
+                break
+        else:
+            raise ImportError('module %s not found' % module_name)
 
         c = ast.parse(open(module_path).read(), module_path)
         v = self.__class__(self.registry)
