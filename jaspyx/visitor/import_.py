@@ -26,7 +26,7 @@ class Import(BaseVisitor):
         self.registry[module_name] = None
 
         c = ast.parse(open(module_path).read(), module_path)
-        v = self.__class__(self.registry)
+        v = self.__class__(module_path, self.registry)
         v.import_path = self.import_path
         v.visit(c)
 

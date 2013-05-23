@@ -227,7 +227,7 @@ Expressions
         d = {
           'a': 'b',
           'c': 'd',
-         }
+        }
 
 - `ast.Compare`
 

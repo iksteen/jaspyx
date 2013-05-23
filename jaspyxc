@@ -13,7 +13,7 @@ if __name__ == '__main__':
         sys.exit(1)
     registry = {}
     c = ast.parse(open(sys.argv[1]).read(), sys.argv[1])
-    v = DefaultVisitor(registry)
+    v = DefaultVisitor(sys.argv[1], registry)
     v.import_path = [os.path.split(sys.argv[1])[0]]
     v.visit(c)
     registry['__main__'] = str(v.module)
