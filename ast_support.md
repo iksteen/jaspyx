@@ -126,6 +126,18 @@ Supported statements
 
         raise 'Something went wrong!'
 
+- `ast.Import`
+
+    **notes**:
+    - Relative imports are not supported. This is a design decision, not a technical limitation.
+    - Module have the file extension .jpx.
+    - When importing module x.y.z, x/y/z/\_\_init\_\_.jpx is first checked. If that does not exist, x/y/z.jpx will be checked.
+
+    Example:
+
+        import module.submodule
+        import module.another as another
+
 - `ast.Global`
 
     Example:
@@ -538,7 +550,6 @@ Unsupported grammar
 - `ast.TryExcept`
 - `ast.TryFinally`
 - `ast.Assert`
-- `ast.Import`
 - `ast.ImportFrom`
 - `ast.Exec`
 - `ast.Set`
