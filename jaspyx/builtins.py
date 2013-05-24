@@ -16,4 +16,5 @@ BUILTINS = {
     'Date': 'Date',
     'Math': 'Math',
     'RegExp': 'RegExp',
+    'eval': 'eval',
 }
