@@ -141,10 +141,27 @@ class Import(BaseVisitor):
         self.init_module(module_path)
 
         for name in node.names:
-            asname = name.asname if name.asname else name.name
-            self.visit(
-                ast.Assign(
-                    [ast_store(asname)],
-                    ast_load('__modules__', *(module_path + [name.name]))
+            if name.name == '*':
+                if self.stack[-1].scope.prefix != ['__module__']:
+                    raise NotImplementedError('from x import * only implemented at module level')
+
+                self.visit(ast.For(
+                    ast_store('$tmp'),
+                    ast_load('__modules__', node.module),
+                    [
+                        ast.Expr(ast_call(
+                            ast_load('eval'),
+                            ast.Str('__module__[__module__.$tmp] = __module__.__modules__.%s[__module__.$tmp]' %
+                                    node.module),
+                        ))
+                    ],
+                    []
+                ))
+            else:
+                asname = name.asname if name.asname else name.name
+                self.visit(
+                    ast.Assign(
+                        [ast_store(asname)],
+                        ast_load('__modules__', node.module, name.name)
+                    )
                 )
-            )
