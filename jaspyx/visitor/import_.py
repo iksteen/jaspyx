@@ -131,3 +131,20 @@ class Import(BaseVisitor):
                         ast_load('__modules__', *module_path)
                     )
                 )
+
+    def visit_ImportFrom(self, node):
+        if node.level:
+            raise NotImplementedError('Relative imports are not supported')
+
+        module_path = node.module.split('.')
+
+        self.init_module(module_path)
+
+        for name in node.names:
+            asname = name.asname if name.asname else name.name
+            self.visit(
+                ast.Assign(
+                    [ast_store(asname)],
+                    ast_load('__modules__', *(module_path + [name.name]))
+                )
+            )
