@@ -30,7 +30,6 @@ class Class(BaseVisitor):
                             ast_call(
                                 ast_load('new'),
                                 ast_load('arguments.callee'),
-                                ast_load('this'),
                                 ast_load('arguments'),
                             )
                         )
@@ -61,7 +60,11 @@ class Class(BaseVisitor):
                             ast_call(
                                 ast_load('this.__init__.apply'),
                                 ast_load('this'),
-                                ast_load('arguments'),
+                                ast.Subscript(
+                                    ast_load('arguments'),
+                                    ast.Index(ast.Num(0)),
+                                    ast.Load()
+                                )
                             )
                         ),
                     ],
