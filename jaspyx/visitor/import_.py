@@ -7,7 +7,7 @@ from jaspyx.visitor import BaseVisitor
 class Import(BaseVisitor):
     import_path = ['.']
 
-    def import_module(self, pieces):
+    def load_module(self, pieces):
         module_name = '.'.join(pieces)
         if module_name in self.registry:
             return
@@ -33,83 +33,89 @@ class Import(BaseVisitor):
         v.import_path = self.import_path
         v.visit(c)
 
-    def visit_Import(self, node):
-        for name in node.names:
-            module_path = []
-            for piece in name.name.split('.'):
-                module_path.append(piece)
-                self.import_module(module_path)
+    def init_module(self, pieces):
+        module_path = []
+        for piece in pieces:
+            module_path.append(piece)
+            module_name = '.'.join(module_path)
 
-                module_name = '.'.join(module_path)
-                self.visit(
-                    ast.If(
-                        ast.Compare(
+            self.load_module(module_path)
+
+            self.visit(
+                ast.If(
+                    ast.Compare(
+                        ast_call(
+                            ast_load('type'),
+                            ast.Subscript(
+                                ast_load('__modules__'),
+                                ast.Index(ast.Str(module_name)),
+                                ast.Load(),
+                            )
+                        ),
+                        [ast.Eq()],
+                        [ast.Str('undefined')]
+                    ),
+                    [
+                        ast.Assign(
+                            [ast.Subscript(
+                                ast_load('__modules__'),
+                                ast.Index(ast.Str(module_name)),
+                                ast.Store(),
+                            )],
+                            ast.Dict(
+                                keys=[
+                                    ast.Str('__modules__'),
+                                    ast.Str('__registry__'),
+                                ],
+                                values=[
+                                    ast_load('__modules__'),
+                                    ast_load('__registry__'),
+                                ]
+                            )
+                        ),
+                        ast.Expr(
                             ast_call(
-                                ast_load('type'),
+                                ast.Subscript(
+                                    ast_load('__registry__'),
+                                    ast.Index(ast.Str(module_name)),
+                                    ast.Load(),
+                                ),
                                 ast.Subscript(
                                     ast_load('__modules__'),
                                     ast.Index(ast.Str(module_name)),
                                     ast.Load(),
-                                )
-                            ),
-                            [ast.Eq()],
-                            [ast.Str('undefined')]
-                        ),
-                        [
-                            ast.Assign(
-                                [ast.Subscript(
-                                    ast_load('__modules__'),
-                                    ast.Index(ast.Str(module_name)),
-                                    ast.Store(),
-                                )],
-                                ast.Dict(
-                                    keys=[
-                                        ast.Str('__modules__'),
-                                        ast.Str('__registry__'),
-                                    ],
-                                    values=[
-                                        ast_load('__modules__'),
-                                        ast_load('__registry__'),
-                                    ]
-                                )
-                            ),
-                            ast.Expr(
-                                ast_call(
-                                    ast.Subscript(
-                                        ast_load('__registry__'),
-                                        ast.Index(ast.Str(module_name)),
-                                        ast.Load(),
-                                    ),
+                                ),
+                            )
+                        )
+                    ] + ([
+                        ast.Assign(
+                            [
+                                ast.Attribute(
                                     ast.Subscript(
                                         ast_load('__modules__'),
-                                        ast.Index(ast.Str(module_name)),
-                                        ast.Load(),
+                                        ast.Index(ast.Str('.'.join(module_path[:-1]))),
+                                        ast.Load()
                                     ),
+                                    module_path[-1],
+                                    ast.Store()
                                 )
+                            ],
+                            ast.Subscript(
+                                ast_load('__modules__'),
+                                ast.Index(ast.Str(module_name)),
+                                ast.Load()
                             )
-                        ] + ([
-                            ast.Assign(
-                                [
-                                    ast.Attribute(
-                                        ast.Subscript(
-                                            ast_load('__modules__'),
-                                            ast.Index(ast.Str('.'.join(module_path[:-1]))),
-                                            ast.Load()
-                                        ),
-                                        module_path[-1],
-                                        ast.Store()
-                                    )
-                                ],
-                                ast.Subscript(
-                                    ast_load('__modules__'),
-                                    ast.Index(ast.Str(module_name)),
-                                    ast.Load()
-                                )
-                            )
-                        ] if len(module_path) > 1 else []),
-                        []
-                    )
+                        )
+                    ] if len(module_path) > 1 else []),
+                    []
                 )
+            )
+
+    def visit_Import(self, node):
+        for name in node.names:
+            module_path = name.name.split('.')
+
+            self.init_module(module_path)
 
             if not name.asname:
                 self.visit(
