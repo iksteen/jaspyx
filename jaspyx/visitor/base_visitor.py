@@ -3,9 +3,10 @@ from jaspyx.context.module import ModuleContext
 
 
 class BaseVisitor(ast.NodeVisitor):
-    def __init__(self, path, registry):
+    def __init__(self, path, registry, indent=0):
         self.path = path
         self.registry = registry
+        self.default_indent = indent
         self.stack = []
         self.module = None
 
@@ -98,6 +99,7 @@ class BaseVisitor(ast.NodeVisitor):
         :param node: The current AST node being visited.
         """
         self.module = ModuleContext()
+        self.module.indent = self.default_indent
         self.push(self.module)
         self.block(node.body)
 

@@ -13,7 +13,7 @@ if __name__ == '__main__':
         sys.exit(1)
     registry = {}
     c = ast.parse(open(sys.argv[1]).read(), sys.argv[1])
-    registry['__main__'] = v = DefaultVisitor(sys.argv[1], registry)
+    registry['__main__'] = v = DefaultVisitor(sys.argv[1], registry, indent=8)
     v.import_path = [os.path.split(sys.argv[1])[0]]
     v.visit(c)
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     print '  var modules = {},'
     print '      registry = {'
     for module, body in registry.items():
-        print '    "%s": %s,' % (module, str(body.module))
+        print '        "%s": %s,' % (module, str(body.module))
     print '  };'
     print '  modules["__main__"] = {'
     print '    "__modules__": modules,'

@@ -29,7 +29,7 @@ class Import(BaseVisitor):
             raise ImportError('module %s not found' % module_name)
 
         c = ast.parse(open(module_path).read(), module_path)
-        self.registry[module_name] = v = self.__class__(module_path, self.registry)
+        self.registry[module_name] = v = self.__class__(module_path, self.registry, indent=self.default_indent)
         v.import_path = self.import_path
         v.visit(c)
 
