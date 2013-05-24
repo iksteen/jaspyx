@@ -138,6 +138,17 @@ Supported statements
         import module.submodule
         import module.another as another
 
+- `ast.ImportFrom`
+
+    **notes**
+    - Same notes apply as for `ast.Import`.
+    - `from ... import *` is only supported at module level.
+
+    Example:
+
+        from module.another import a
+        from module.another import b as c, d
+
 - `ast.Global`
 
     Example:
@@ -550,7 +561,6 @@ Unsupported grammar
 - `ast.TryExcept`
 - `ast.TryFinally`
 - `ast.Assert`
-- `ast.ImportFrom`
 - `ast.Exec`
 - `ast.Set`
 - `ast.ListComp`
