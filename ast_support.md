@@ -252,7 +252,8 @@ Expressions
 - `ast.Call`
 
     **notes**:
-    - Keyword arguments, `*args` and `**kwargs` are not supported.
+    - Keyword arguments, `**kwargs` are not supported.
+    - `*args` is supported.
 
     Example:
 
