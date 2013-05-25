@@ -61,6 +61,12 @@ class Function(BaseVisitor):
             ast.Str(str(self.stack.pop())),
         )
 
+        for decorator in node.decorator_list:
+            body = ast_call(
+                decorator,
+                body
+            )
+
         if not node.name:
             self.visit(body)
         else:
