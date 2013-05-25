@@ -1,4 +1,5 @@
 import _ast
+import ast
 from jaspyx.ast_util import ast_call, ast_load
 from jaspyx.context.function import FunctionContext
 from jaspyx.visitor import BaseVisitor
@@ -13,13 +14,7 @@ class Function(BaseVisitor):
         if node.args.kwarg is not None:
             raise Exception('**kwargs not supported')
 
-        # Name is empty when a lambda function is generated
-        if node.name:
-            self.indent()
-        else:
-            self.output('(')
-
-        func = FunctionContext(self.stack[-1], node.name, args)
+        func = FunctionContext(self.stack[-1], args)
         self.push(func)
 
         # Emit vararg
@@ -61,9 +56,17 @@ class Function(BaseVisitor):
         # Emit function body
         self.block(node.body)
 
-        self.pop()
+        body = ast_call(
+            ast_load('JS'),
+            ast.Str(str(self.stack.pop())),
+        )
 
-        if node.name:
-            self.output('\n')
+        if not node.name:
+            self.visit(body)
         else:
-            self.output(')')
+            self.visit(
+                ast.Assign(
+                    [ast_load(node.name)],
+                    body,
+                )
+            )

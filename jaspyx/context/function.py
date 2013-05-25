@@ -3,11 +3,10 @@ from jaspyx.scope import Scope
 
 
 class FunctionContext(BlockContext):
-    def __init__(self, parent, name, arg_names=[]):
+    def __init__(self, parent, arg_names=[]):
         super(FunctionContext, self).__init__(parent)
         if parent:
             self.scope = Scope(self.scope)
-        self.name = name
         self.arg_names = arg_names
         for arg_name in self.arg_names:
             self.scope.declare(arg_name, False)
@@ -22,14 +21,8 @@ class FunctionContext(BlockContext):
 
         args = ', '.join(self.arg_names)
         body = super(FunctionContext, self).__str__()
-        if self.name:
-            return '%s = function(%s) %s' % (
-                self.scope.parent.prefixed(self.name),
-                args,
-                body
-            )
-        else:
-            return 'function(%s) %s' % (
-                args,
-                body
-            )
+
+        return '(function(%s) %s)' % (
+            args,
+            body
+        )
