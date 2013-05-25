@@ -1,4 +1,3 @@
-import _ast
 import ast
 from jaspyx.ast_util import ast_call, ast_load
 from jaspyx.context.function import FunctionContext
@@ -20,12 +19,12 @@ class Function(BaseVisitor):
         # Emit vararg
         if node.args.vararg is not None:
             self.visit(
-                _ast.Assign(
-                    [_ast.Name(node.args.vararg, _ast.Store())],
+                ast.Assign(
+                    [ast.Name(node.args.vararg, ast.Store())],
                     ast_call(
                         ast_load('Array.prototype.slice.call'),
-                        _ast.Name('arguments', _ast.Load()),
-                        _ast.Num(len(args)),
+                        ast.Name('arguments', ast.Load()),
+                        ast.Num(len(args)),
                     )
                 )
             )
@@ -34,18 +33,18 @@ class Function(BaseVisitor):
         def_args = node.args.defaults
         for arg_name, arg_val in zip(args[-len(def_args):], def_args):
             self.block([
-                _ast.If(
-                    _ast.Compare(
+                ast.If(
+                    ast.Compare(
                         ast_call(
-                            _ast.Name('type', _ast.Load()),
-                            _ast.Name(arg_name, _ast.Load()),
+                            ast.Name('type', ast.Load()),
+                            ast.Name(arg_name, ast.Load()),
                         ),
-                        [_ast.Eq(), ],
-                        [_ast.Str('undefined'), ],
+                        [ast.Eq(), ],
+                        [ast.Str('undefined'), ],
                     ),
                     [
-                        _ast.Assign(
-                            [_ast.Name(arg_name, _ast.Store())],
+                        ast.Assign(
+                            [ast.Name(arg_name, ast.Store())],
                             arg_val
                         ),
                     ],

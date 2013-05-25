@@ -36,9 +36,6 @@ class Compare(BaseVisitor):
             return f_op
         exec 'CmpOp_%s = gen_op("%s")' % (key, value)
 
-    def visit_In(self, node):
-        self.output(' in ')
-
     def CmpOp_In(self, left, comparator):
         self.visit(ast_call(
             ast.FunctionDef(

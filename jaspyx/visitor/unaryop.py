@@ -1,4 +1,4 @@
-import _ast
+import ast
 from jaspyx.visitor import BaseVisitor
 
 
@@ -18,12 +18,12 @@ class UnaryOp(BaseVisitor):
 
     def UnaryOp_Invert(self, operand):
         self.visit(
-            _ast.UnaryOp(
-                _ast.USub(),
-                _ast.BinOp(
+            ast.UnaryOp(
+                ast.USub(),
+                ast.BinOp(
                     operand,
-                    _ast.Add(),
-                    _ast.Num(1)
-                ),
+                    ast.Add(),
+                    ast.Num(1)
+                )
             )
         )

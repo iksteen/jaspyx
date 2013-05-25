@@ -1,4 +1,4 @@
-from jaspyx.ast_util import ast_call, ast_load
+from jaspyx.ast_util import ast_call
 from jaspyx.visitor import BaseVisitor
 
 

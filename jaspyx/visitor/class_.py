@@ -1,5 +1,4 @@
 import ast
-import _ast
 from jaspyx.ast_util import ast_load, ast_call, ast_store
 from jaspyx.context.class_ import ClassContext
 from jaspyx.visitor import BaseVisitor

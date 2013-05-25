@@ -1,4 +1,4 @@
-import _ast
+import ast
 from jaspyx.visitor import BaseVisitor
 
 
@@ -7,10 +7,10 @@ class AugAssign(BaseVisitor):
         attr = getattr(self, 'AugAssign_%s' % node.op.__class__.__name__, None)
         if attr is None:
             # Rewrite the expression as an assignment using a BinOp
-            self.visit(_ast.Assign(
+            self.visit(ast.Assign(
                 [node.target],
-                _ast.BinOp(
-                    _ast.Name(node.target.id, _ast.Load()),
+                ast.BinOp(
+                    ast.Name(node.target.id, ast.Load()),
                     node.op,
                     node.value
                 )

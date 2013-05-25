@@ -1,4 +1,4 @@
-import _ast
+import ast
 from jaspyx.ast_util import ast_load, ast_call
 from jaspyx.visitor import BaseVisitor
 
@@ -32,4 +32,4 @@ class BinOp(BaseVisitor):
 
     def BinOp_FloorDiv(self, left, right):
         floor = ast_load('Math.floor')
-        self.visit(ast_call(floor, _ast.BinOp(left, _ast.Div(), right)))
+        self.visit(ast_call(floor, ast.BinOp(left, ast.Div(), right)))

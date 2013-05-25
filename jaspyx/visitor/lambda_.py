@@ -1,12 +1,12 @@
-import _ast
+import ast
 from jaspyx.visitor import BaseVisitor
 
 
 class Lambda(BaseVisitor):
     def visit_Lambda(self, node):
-        self.visit(_ast.FunctionDef(
+        self.visit(ast.FunctionDef(
             '',
             node.args,
-            [_ast.Return(node.body)],
+            [ast.Return(node.body)],
             []
         ))

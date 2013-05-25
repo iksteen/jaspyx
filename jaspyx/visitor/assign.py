@@ -6,9 +6,9 @@ from jaspyx.visitor import BaseVisitor
 
 class Assign(BaseVisitor):
     def visit_Assign_Slice(self, target, value):
-        lower = target.slice.lower or _ast.Num(0)
-        upper = target.slice.upper or _ast.Attribute(target.value, 'length', _ast.Load())
-        length = _ast.BinOp(upper, _ast.Sub(), lower)
+        lower = target.slice.lower or ast.Num(0)
+        upper = target.slice.upper or ast.Attribute(target.value, 'length', ast.Load())
+        length = ast.BinOp(upper, ast.Sub(), lower)
 
         self.visit(
             ast.Expr(
