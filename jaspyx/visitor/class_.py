@@ -8,8 +8,6 @@ class Class(BaseVisitor):
     def visit_ClassDef(self, node):
         if len(node.bases) > 1:
             raise Exception('Multiple inheritance not supported')
-        if node.decorator_list:
-            raise Exception('Decorators not supported')
 
         self.visit(ast.FunctionDef(
             node.name,
@@ -209,4 +207,16 @@ class Class(BaseVisitor):
 
         for stmt in node.body:
             self.visit(stmt)
+
         self.pop()
+
+        if node.decorator_list:
+            arg = ast_load(node.name)
+            for decorator in node.decorator_list:
+                arg = ast_call(decorator, arg)
+            self.visit(
+                ast.Assign(
+                    [ast_store(node.name)],
+                    arg
+                )
+            )
