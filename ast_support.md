@@ -126,6 +126,17 @@ Supported statements
 
         raise 'Something went wrong!'
 
+- `ast.TryExcept`
+
+    Example:
+
+        try:
+            pass
+        except SomeException as e:
+            pass
+        except:
+            pass
+
 - `ast.Import`
 
     **notes**:
@@ -559,7 +570,6 @@ Unsupported grammar
 - `ast.Expression`
 - `ast.Suite`
 - `ast.With`
-- `ast.TryExcept`
 - `ast.TryFinally`
 - `ast.Assert`
 - `ast.Exec`
