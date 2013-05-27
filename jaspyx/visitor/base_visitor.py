@@ -113,16 +113,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         """
-        Generic AST node handlers. Prints fields to stderr and raises
-        an exception. This is called by ast.NodeVisitor when no
-        suitable visit_<name> method is found.
+        Generic AST node handlers. Raises an exception. This is called by
+        ast.NodeVisitor when no suitable visit_<name> method is found.
 
         :param node: The current AST node being visited.
         """
-        import sys
-
-        print >> sys.stderr, node
-        print >> sys.stderr, 'Fields:'
-        for field in node._fields:
-            print >> sys.stderr, ' - %s: %s' % (field, getattr(node, field))
-        raise Exception('Unsupported AST node %s' % node)
+        raise NotImplementedError('Unsupported AST node %s' % node)
