@@ -18,4 +18,5 @@ setup(name='jaspyx',
       scripts=['jaspyxc'],
       include_package_data=True,
       zip_safe=False,
+      setup_requires=['nose>=1.0', 'coverage'],
 )
