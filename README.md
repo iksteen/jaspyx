@@ -23,7 +23,7 @@ You can use it stand-alone using the bundled _jaspyxc_ command line tool or you 
 Example
 -------
 
-Create a file name _demo.jpx_ with the following content::
+Create a file name _demo.jpx_ with the following content:
 
     def main():
         alert('Hello, world!')
@@ -31,11 +31,11 @@ Create a file name _demo.jpx_ with the following content::
     main()
     
 
-Convert it to JavaScript using the _jaspyxc_::
+Convert it to JavaScript using the _jaspyxc_:
 
     $ jaspyxc demo.jpx
 
-It will generate the following output::
+It will generate the following output:
 
     (function() {
       function main() {
