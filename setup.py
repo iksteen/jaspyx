@@ -8,6 +8,7 @@ README = open(os.path.join(here, 'README.md')).read()
 setup(name='jaspyx',
       version='0.0',
       description='JavaScript expressed in Python',
+      long_description=README,
       classifiers=[
       	  "Programming Language :: Python",
       ],
