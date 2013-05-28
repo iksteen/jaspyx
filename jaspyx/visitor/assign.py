@@ -78,8 +78,7 @@ class Assign(BaseVisitor):
                 return
 
         self.indent()
-        for target in node.targets:
-            self.visit(target)
+        self.group(node.targets, prefix='', infix=' = ', suffix='')
         self.output(' = ')
         self.visit(node.value)
         self.finish()
