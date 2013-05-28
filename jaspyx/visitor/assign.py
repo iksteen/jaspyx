@@ -6,9 +6,11 @@ from jaspyx.visitor import BaseVisitor
 
 class Assign(BaseVisitor):
     def visit_Assign_Slice(self, target, value):
-        lower = target.slice.lower or ast.Num(0)
-        upper = target.slice.upper or ast.Attribute(target.value, 'length', ast.Load())
-        length = ast.BinOp(upper, ast.Sub(), lower)
+        args = []
+        if target.slice.lower or target.slice.upper:
+            args.append(target.slice.lower or ast.Num(0))
+        if target.slice.upper:
+            args.append(target.slice.upper)
 
         self.visit(
             ast.Expr(
@@ -20,24 +22,63 @@ class Assign(BaseVisitor):
                                 ast_store('t'),
                                 ast_store('v'),
                                 ast_store('s'),
-                                ast_store('l'),
+                                ast_store('e'),
                             ], None, None, []
                         ),
                         [
-                            ast.If(
-                                ast.Compare(
-                                    ast_load('l'),
-                                    [ast.Lt()],
-                                    [ast.Num(0)]
-                                ),
-                                [
-                                    ast.AugAssign(
-                                        ast_load('l'),
-                                        ast.Add(),
-                                        ast_load('t.length')
+                            ast.Assign(
+                                [ast_store('s')],
+                                ast.IfExp(
+                                    ast.Compare(
+                                        ast_call(
+                                            ast_load('type'),
+                                            ast_load('s')
+                                        ),
+                                        [ast.Eq()],
+                                        [ast.Str('undefined')],
                                     ),
-                                ],
-                                []
+                                    ast.Num(0),
+                                    ast.IfExp(
+                                        ast.Compare(
+                                            ast_load('s'),
+                                            [ast.Lt()],
+                                            [ast.Num(0)],
+                                        ),
+                                        ast.BinOp(
+                                            ast_load('s'),
+                                            ast.Add(),
+                                            ast_load('t.length')
+                                        ),
+                                        ast_load('s')
+                                    )
+                                )
+                            ),
+                            ast.Assign(
+                                [ast_store('e')],
+                                ast.IfExp(
+                                    ast.Compare(
+                                        ast_call(
+                                            ast_load('type'),
+                                            ast_load('e')
+                                        ),
+                                        [ast.Eq()],
+                                        [ast.Str('undefined')],
+                                    ),
+                                    ast_load('t.length'),
+                                    ast.IfExp(
+                                        ast.Compare(
+                                            ast_load('e'),
+                                            [ast.Lt()],
+                                            [ast.Num(0)],
+                                        ),
+                                        ast.BinOp(
+                                            ast_load('e'),
+                                            ast.Add(),
+                                            ast_load('t.length')
+                                        ),
+                                        ast_load('e')
+                                    )
+                                )
                             ),
                             ast.Expr(
                                 ast_call(
@@ -47,7 +88,11 @@ class Assign(BaseVisitor):
                                         ast.Attribute(
                                             ast.List([
                                                 ast_load('s'),
-                                                ast_load('l'),
+                                                ast.BinOp(
+                                                    ast_load('e'),
+                                                    ast.Sub(),
+                                                    ast_load('s')
+                                                ),
                                             ], ast.Load()),
                                             'concat',
                                             ast.Load(),
@@ -61,8 +106,7 @@ class Assign(BaseVisitor):
                     ),
                     target.value,
                     value,
-                    lower,
-                    length,
+                    *args
                 )
             )
         )
