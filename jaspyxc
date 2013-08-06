@@ -12,9 +12,15 @@ if __name__ == '__main__':
         print >> sys.stderr, 'Syntax: %s <input>' % sys.argv[0]
         sys.exit(1)
     registry = {}
-    c = ast.parse(open(sys.argv[1]).read(), sys.argv[1])
-    registry['__main__'] = v = DefaultVisitor(sys.argv[1], registry, indent=8)
-    v.import_path = [os.path.split(sys.argv[1])[0]]
+
+    import_path, main = os.path.split(sys.argv[1])
+    if os.path.isdir(sys.argv[1]) and os.path.exists(os.path.join(sys.argv[1], '__init__.jpx')):
+        c = ast.parse('import ' + main)
+        registry['__main__'] = v = DefaultVisitor('__main__', registry, indent=8)
+    else:
+        c = ast.parse(open(sys.argv[1]).read(), sys.argv[1])
+        registry['__main__'] = v = DefaultVisitor(sys.argv[1], registry, indent=8)
+    v.import_path = [import_path]
     v.visit(c)
 
     print '(function() {'
