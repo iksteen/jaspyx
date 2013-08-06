@@ -121,6 +121,10 @@ class Assign(BaseVisitor):
                 self.visit_Assign_Slice(target, node.value)
                 return
 
+        for target in node.targets:
+            if isinstance(target, _ast.List) or isinstance(target, _ast.Tuple):
+                raise Exception('Destructuring assignment not supported.')
+
         self.indent()
         self.group(node.targets, prefix='', infix=' = ', suffix='')
         self.output(' = ')
