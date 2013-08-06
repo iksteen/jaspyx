@@ -162,6 +162,14 @@ class Import(BaseVisitor):
                 self.visit(
                     ast.Assign(
                         [ast_store(asname)],
-                        ast_load('__modules__', node.module, name.name)
+                        ast.Attribute(
+                            ast.Subscript(
+                                ast_load('__modules__'),
+                                ast.Index(ast.Str(node.module)),
+                                ast.Load()
+                            ),
+                            name.name,
+                            ast.Load()
+                        )
                     )
                 )
