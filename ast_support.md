@@ -89,15 +89,20 @@ Supported statements
 - `ast.For`
 
     **notes**:
-    - This is always implemented using the JavaScript `for(i in iterable)` construct.
+    - `for i in range([a, ]b[, c])` is implemented as a language construct. `range` is only implemented in this context and it will ignore the presence of a `range` variable.
+    - When using `for i in range(a, b, c)`, the step (`c`) may only be a literal number.
+    - When not using `range`, `for` is always implemented using the JavaScript `for(i in iterable)` construct.
     - The `else` clause of the python `for` statement is not supported.
-    - Iterating an array using `for` will probably have unintended results.
+    - Iterating an array using `for` will probably have unintended results. Use `for i in range(l.length)` instead.
 
     Example:
 
         obj = {'a': 'b'}
         for i in obj:
             print i, obj[i]
+
+        for i in range(0, 10, 2):
+            print i
 
 - `ast.While`
 
