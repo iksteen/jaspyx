@@ -73,23 +73,29 @@ class Import(BaseVisitor):
 
         import_module = self.init_module(module_path)
 
-        for name in node.names:
+        if len(node.names) > 1 or node.names[0].name == '*':
+            self.visit(ast.Assign(
+                [ast_store('$t1')],
+                import_module
+            ))
+            import_from = ast_load('$t1')
+        else:
+            import_from = import_module
+
+        if node.names[0].name == '*':
+            name = node.names[0]
             if name.name == '*':
                 if self.stack[-1].scope.prefix != ['__module__']:
                     raise NotImplementedError('from x import * only implemented at module level')
 
-                self.visit(ast.Assign(
-                    [ast_store('$t1')],
-                    import_module
-                ))
                 self.visit(ast.For(
                     ast_store('$t2'),
-                    ast_load('$t1'),
+                    import_from,
                     [
                         ast.Assign(
                             [ast_call(ast_load('JS'), ast.Str('__module__[__module__.$t2]'))],
                             ast.Subscript(
-                                ast_load('$t1'),
+                                import_from,
                                 ast.Index(ast_load('$t2')),
                                 ast.Load(),
                             )
@@ -97,13 +103,14 @@ class Import(BaseVisitor):
                     ],
                     []
                 ))
-            else:
+        else:
+            for name in node.names:
                 asname = name.asname if name.asname else name.name
                 self.visit(
                     ast.Assign(
                         [ast_store(asname)],
                         ast.Attribute(
-                            import_module,
+                            import_from,
                             name.name,
                             ast.Load()
                         )
