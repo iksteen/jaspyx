@@ -33,102 +33,35 @@ class Import(BaseVisitor):
         v.import_path = self.import_path
         v.visit(c)
 
-    def init_module(self, pieces):
-        module_path = []
-        for piece in pieces:
-            module_path.append(piece)
-            module_name = '.'.join(module_path)
+    def init_module(self, module_path):
+        for i in range(len(module_path)):
+            self.load_module(module_path[:i + 1])
 
-            self.load_module(module_path)
-
-            self.visit(
-                ast.If(
-                    ast.Compare(
-                        ast_call(
-                            ast_load('type'),
-                            ast.Subscript(
-                                ast_load('__modules__'),
-                                ast.Index(ast.Str(module_name)),
-                                ast.Load(),
-                            )
-                        ),
-                        [ast.Eq()],
-                        [ast.Str('undefined')]
-                    ),
-                    [
-                        ast.Assign(
-                            [ast.Subscript(
-                                ast_load('__modules__'),
-                                ast.Index(ast.Str(module_name)),
-                                ast.Store(),
-                            )],
-                            ast.Dict(
-                                keys=[
-                                    ast.Str('__modules__'),
-                                    ast.Str('__registry__'),
-                                ],
-                                values=[
-                                    ast_load('__modules__'),
-                                    ast_load('__registry__'),
-                                ]
-                            )
-                        ),
-                        ast.Expr(
-                            ast_call(
-                                ast.Subscript(
-                                    ast_load('__registry__'),
-                                    ast.Index(ast.Str(module_name)),
-                                    ast.Load(),
-                                ),
-                                ast.Subscript(
-                                    ast_load('__modules__'),
-                                    ast.Index(ast.Str(module_name)),
-                                    ast.Load(),
-                                ),
-                            )
-                        )
-                    ] + ([
-                        ast.Assign(
-                            [
-                                ast.Attribute(
-                                    ast.Subscript(
-                                        ast_load('__modules__'),
-                                        ast.Index(ast.Str('.'.join(module_path[:-1]))),
-                                        ast.Load()
-                                    ),
-                                    module_path[-1],
-                                    ast.Store()
-                                )
-                            ],
-                            ast.Subscript(
-                                ast_load('__modules__'),
-                                ast.Index(ast.Str(module_name)),
-                                ast.Load()
-                            )
-                        )
-                    ] if len(module_path) > 1 else []),
-                    []
-                )
-            )
+        return ast_call(
+            ast_call(ast_load('JS'), ast.Str('__import__')),
+            ast_call(ast_load('JS'), ast.Str('__module__')),
+            ast.Str('.'.join(module_path))
+        )
 
     def visit_Import(self, node):
         for name in node.names:
             module_path = name.name.split('.')
 
-            self.init_module(module_path)
+            import_module = self.init_module(module_path)
 
             if not name.asname:
+                self.visit(ast.Expr(import_module))
                 self.visit(
                     ast.Assign(
                         [ast_store(module_path[0])],
-                        ast_load('__modules__', module_path[0])
+                        self.init_module(module_path[:1])
                     )
                 )
             else:
                 self.visit(
                     ast.Assign(
                         [ast_store(name.asname)],
-                        ast_load('__modules__', *module_path)
+                        import_module
                     )
                 )
 
@@ -138,22 +71,29 @@ class Import(BaseVisitor):
 
         module_path = node.module.split('.')
 
-        self.init_module(module_path)
+        import_module = self.init_module(module_path)
 
         for name in node.names:
             if name.name == '*':
                 if self.stack[-1].scope.prefix != ['__module__']:
                     raise NotImplementedError('from x import * only implemented at module level')
 
+                self.visit(ast.Assign(
+                    [ast_store('$t1')],
+                    import_module
+                ))
                 self.visit(ast.For(
-                    ast_store('$tmp'),
-                    ast_load('__modules__', node.module),
+                    ast_store('$t2'),
+                    ast_load('$t1'),
                     [
-                        ast.Expr(ast_call(
-                            ast_load('eval'),
-                            ast.Str('__module__[__module__.$tmp] = __module__.__modules__.%s[__module__.$tmp]' %
-                                    node.module),
-                        ))
+                        ast.Assign(
+                            [ast_call(ast_load('JS'), ast.Str('__module__[__module__.$t2]'))],
+                            ast.Subscript(
+                                ast_load('$t1'),
+                                ast.Index(ast_load('$t2')),
+                                ast.Load(),
+                            )
+                        ),
                     ],
                     []
                 ))
@@ -163,11 +103,7 @@ class Import(BaseVisitor):
                     ast.Assign(
                         [ast_store(asname)],
                         ast.Attribute(
-                            ast.Subscript(
-                                ast_load('__modules__'),
-                                ast.Index(ast.Str(node.module)),
-                                ast.Load()
-                            ),
+                            import_module,
                             name.name,
                             ast.Load()
                         )

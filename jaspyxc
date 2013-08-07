@@ -23,15 +23,40 @@ if __name__ == '__main__':
     v.import_path = [import_path]
     v.visit(c)
 
-    print '(function() {'
-    print '  var modules = {},'
-    print '      registry = {'
+    print '''(function() {
+  function __import__(__module__, module_name) {
+    var modules = __module__.__modules__,
+        module = modules[module_name];
+    if(typeof module == 'undefined') {
+      var module_path = module_name.split('.'),
+          registry = __module__.__registry__,
+          s, p;
+      for(var i = 0; i < module_path.length; ++i) {
+        s = module_path.slice(0, i + 1).join('.');
+        module = modules[s];
+        if(typeof module == 'undefined') {
+          module = modules[s] = {
+            '__modules__': modules,
+            '__registry__': registry
+          };
+          registry[s](module);
+          if(p) {
+            modules[p][module_path[i]] = module;
+          }
+          p = s;
+        }
+      }
+    }
+    return module;
+  }
+  var modules = {},
+      registry = {'''
     for module, body in registry.items():
         print '        "%s": %s,' % (module, str(body.module))
-    print '  };'
-    print '  modules["__main__"] = {'
-    print '    "__modules__": modules,'
-    print '    "__registry__": registry,'
-    print '  };'
-    print '  registry["__main__"](modules["__main__"]);'
-    print '})();'
+    print '''  };
+  modules["__main__"] = {
+    "__modules__": modules,
+    "__registry__": registry,
+  };
+  registry["__main__"](modules["__main__"]);
+})();'''
