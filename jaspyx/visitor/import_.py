@@ -93,7 +93,13 @@ class Import(BaseVisitor):
                     import_from,
                     [
                         ast.Assign(
-                            [ast_call(ast_load('JS'), ast.Str('__module__[__module__.$t2]'))],
+                            [
+                                ast.Subscript(
+                                    ast_call(ast_load('JS'), ast.Str('__module__')),
+                                    ast.Index(ast_load('$t2')),
+                                    ast.Load()
+                                )
+                            ],
                             ast.Subscript(
                                 import_from,
                                 ast.Index(ast_load('$t2')),
