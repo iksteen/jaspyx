@@ -16,6 +16,7 @@ from jaspyx.visitor.attribute import Attribute
 from jaspyx.visitor.compare import Compare
 from jaspyx.visitor.if_else import IfElse
 from jaspyx.visitor.ifexp import IfExp
+from jaspyx.visitor.listcomp import ListComp
 from jaspyx.visitor.tryexcept import TryExcept
 from jaspyx.visitor.import_ import Import
 from jaspyx.visitor.lambda_ import Lambda
@@ -61,6 +62,7 @@ class DefaultVisitor(Types,
                      Continue,
                      Call,
                      IfExp,
+                     ListComp,
                      PrintToConsole,
                      FuncJS,
                      FuncType,
