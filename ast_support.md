@@ -256,6 +256,17 @@ Expressions
           'c': 'd',
         }
 
+- `ast.ListComp`
+
+    **notes**:
+    - Implemented using an anonymous function and nested for loops.
+
+    Example:
+
+         nums = [1,2,3,4]
+         fruit = ["Apples", "Peaches", "Pears", "Bananas"]
+         print [(i,f) for i in nums for f in fruit if f[0] == "P" if i%2 == 1]
+
 - `ast.Compare`
 
     **notes**:
@@ -579,7 +590,6 @@ Unsupported grammar
 - `ast.Assert`
 - `ast.Exec`
 - `ast.Set`
-- `ast.ListComp`
 - `ast.SetComp`
 - `ast.DictComp`
 - `ast.GeneratorExp`
