@@ -122,28 +122,41 @@ class TestAssignSingleTarget(V8Helper):
             list
         ) == [0, 1, 42, 43, 8, 9]
 
-    @raises(Exception)
     def test_destructure(self):
         assert self.run(
             [
                 ast.Assign(
-                    [
-                        ast.List(
+                    [ast_store('test2')],
+                    ast_call(
+                        ast.FunctionDef(
+                            '',
+                            ast.arguments([], None, None, []),
                             [
-                                ast_store('test1'),
-                                ast_store('test2'),
+                                ast.Global(['test1']),
+                                ast.Assign(
+                                    [
+                                        ast.List(
+                                            [
+                                                ast_store('test1'),
+                                                ast_store('test2'),
+                                            ],
+                                            ast.Store()
+                                        )
+                                    ],
+                                    ast.List(
+                                        [
+                                            ast.Str('test1'),
+                                            ast.Str('test2'),
+                                        ],
+                                        ast.Load()
+                                    )
+                                ),
+                                ast.Return(ast_load('test2'))
                             ],
-                            ast.Store()
+                            []
                         )
-                    ],
-                    ast.List(
-                        [
-                            ast.Str('test'),
-                            ast.Str('test'),
-                        ],
-                        ast.Load()
                     )
                 )
             ],
             'test1 + "+" + test2'
-        ) == 'test+test'
+        ) == 'test1+test2'

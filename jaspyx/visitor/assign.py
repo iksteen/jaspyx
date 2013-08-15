@@ -112,6 +112,41 @@ class Assign(BaseVisitor):
             *args
         )
 
+    def build_Assign_Destructuring(self, targets, value):
+        scope = self.stack[-1].scope
+        global_scope = scope.get_global_scope()
+
+        assignments = []
+        for target, i in zip(targets.elts, range(len(targets.elts))):
+            if isinstance(target, _ast.Name):
+                if scope.is_global(target.id):
+                    global_scope.declare(target.id)
+                else:
+                    scope.declare(target.id)
+                target = ast.Name(target.id, ast.Load())
+            assignments.append(
+                ast.Assign(
+                    [target],
+                    ast.Subscript(
+                        ast_load('v'),
+                        ast.Index(ast.Num(i)),
+                        ast.Load()
+                    )
+                )
+            )
+
+        return ast_call(
+            ast.FunctionDef(
+                '',
+                ast.arguments([ast_store('v')], None, None, []),
+                assignments + [
+                    ast.Return(ast_load('v'))
+                ],
+                []
+            ),
+            value
+        )
+
     def visit_SimpleAssign(self, node):
         self.visit(node.targets[0])
         self.output(' = ')
@@ -121,7 +156,7 @@ class Assign(BaseVisitor):
         body = node.value
         for target in reversed(node.targets):
             if isinstance(target, _ast.List) or isinstance(target, _ast.Tuple):
-                raise Exception('Destructuring assignment not supported.')
+                body = self.build_Assign_Destructuring(target, body)
             elif isinstance(target, _ast.Subscript) and \
                     isinstance(target.slice, _ast.Slice):
                 body = self.build_Assign_Slice(target, body)
