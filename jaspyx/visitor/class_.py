@@ -169,7 +169,7 @@ class Class(BaseVisitor):
                                 ),
                                 ast.Assign(
                                     [ast_store('tmp', 'prototype')],
-                                    ast_load(base.id, 'prototype'),
+                                    ast.Attribute(base, 'prototype', ast.Load()),
                                 ),
                                 ast.Return(
                                     ast_call(
