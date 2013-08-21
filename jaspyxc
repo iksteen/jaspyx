@@ -39,12 +39,12 @@ if __name__ == '__main__':
             '__modules__': modules,
             '__registry__': registry
           };
-          registry[s](module);
           if(p) {
             modules[p][module_path[i]] = module;
           }
-          p = s;
+          registry[s](module);
         }
+        p = s;
       }
     }
     return module;
