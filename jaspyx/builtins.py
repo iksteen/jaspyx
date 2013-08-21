@@ -17,4 +17,6 @@ BUILTINS = {
     'Math': 'Math',
     'RegExp': 'RegExp',
     'eval': 'eval',
+    'int': 'parseInt',
+    'float': 'parseFloat',
 }
